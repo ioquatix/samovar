@@ -2,7 +2,7 @@
 require 'flopp'
 
 module Command
-	class Bottom < Flop::Command
+	class Bottom < Flopp::Command
 		self.description = "Create a new teapot package using the specified repository."
 		
 		one :project_name, "The name of the new project in title-case, e.g. 'My Project'."
@@ -10,7 +10,7 @@ module Command
 		split :argv, "Additional arguments to be passed to the sub-process."
 	end
 
-	class Top < Flop::Command
+	class Top < Flopp::Command
 		self.description = "A decentralised package manager and build tool."
 		
 		options do
