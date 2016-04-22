@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require 'mapping/model'
+require 'rainbow'
 
 module Flopp
 	module Output
