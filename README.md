@@ -1,5 +1,7 @@
 # Flopp
 
+![Teapot](teapot.png)
+
 Flopp is a modern framework for building command-line tools and applications. It provides a declarative class-based DSL for building command-line parsers that include automatic documentation gneration `--help`. It helps you keep your functionality clean and isolated where possible.
 
 [![Build Status](https://secure.travis-ci.org/ioquatix/flopp.svg)](http://travis-ci.org/ioquatix/flopp)
