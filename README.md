@@ -1,5 +1,6 @@
 # Flopp
 
+Flopp is a modern framework for building command-line tools and applications. It provides a declarative class-based DSL for building command-line parsers that include automatic documentation gneration `--help`. It helps you keep your functionality clean and isolated where possible.
 
 [![Build Status](https://secure.travis-ci.org/ioquatix/flopp.svg)](http://travis-ci.org/ioquatix/flopp)
 [![Code Climate](https://codeclimate.com/github/ioquatix/flopp.svg)](https://codeclimate.com/github/ioquatix/flopp)
@@ -7,6 +8,9 @@
 
 ## Motivation
 
+I've been using [Trollop](https://github.com/ManageIQ/trollop) and while it's not bad, it's hard to use for sub-commands in a way that generates nice documentation. It also has pretty limited support for complex command lines (e.g. nested commands, splits, matching tokens, etc). Flopp is a high level bridge between the command line and your code: it generates decent documentation, maps nicely between the command line syntax and your functions, and supports sub-commands using classes which are easy to compose.
+
+If you want a modern framework for building your next command-line app, consider Flopp.
 
 ## Installation
 
@@ -24,7 +28,7 @@ Or install it yourself as:
 
 ## Usage
 
-
+The best example of a working Flopp command line is probably [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb). Please feel free to submit other examples and I will link to them here.
 
 ## Contributing
 
