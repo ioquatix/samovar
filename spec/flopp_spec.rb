@@ -1,5 +1,6 @@
 
 require 'flopp'
+require 'stringio'
 
 module Command
 	class Bottom < Flopp::Command
@@ -35,5 +36,13 @@ describe Flopp do
 		expect(top.command.project_name).to be == 'foobar'
 		expect(top.command.packages).to be == ['A', 'B']
 		expect(top.command.argv).to be == ["args", "args"]
+	end
+	
+	it "should generate documentation" do
+		top = Command::Top.new([])
+		buffer = StringIO.new
+		top.print_usage('top', output: buffer)
+		
+		expect(buffer.string).to be_include(Command::Top.description)
 	end
 end
