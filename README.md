@@ -10,7 +10,7 @@ Flopp is a modern framework for building command-line tools and applications. It
 
 I've been using [Trollop](https://github.com/ManageIQ/trollop) and while it's not bad, it's hard to use for sub-commands in a way that generates nice documentation. It also has pretty limited support for complex command lines (e.g. nested commands, splits, matching tokens, etc). Flopp is a high level bridge between the command line and your code: it generates decent documentation, maps nicely between the command line syntax and your functions, and supports sub-commands using classes which are easy to compose.
 
-If you want a modern framework for building your next command-line app, consider Flopp.
+One of the other issues I had with existing frameworks is testability. Most frameworks expect to have some pretty heavy logic directly in the binary executable, or at least don't structure your code in a way which makes testing easy. Flopp structures your command processing logic into classes which can be easily tested in isolation, which means that you can mock up and [spec your command-line executables easily](https://github.com/ioquatix/teapot/blob/master/spec/teapot/command_spec.rb).
 
 ## Installation
 
@@ -37,6 +37,10 @@ The best example of a working Flopp command line is probably [Teapot](https://gi
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+### Future Work
+
+One area that I'd like to work on is line-wrapping. Right now, line wrapping is done by the terminal which is a bit ugly in some cases. There is a [half-implemented elegant solution](lib/flopp/output/line_wrapper.rb).
 
 ## License
 
