@@ -27,7 +27,7 @@ require_relative 'split'
 
 require_relative 'output'
 
-module Flopp
+module Samovar
 	class IncompleteParse < StandardError
 	end
 	

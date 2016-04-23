@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'flopp/version'
+require 'samovar/version'
 
 Gem::Specification.new do |spec|
-	spec.name          = "flopp"
-	spec.version       = Flopp::VERSION
+	spec.name          = "samovar"
+	spec.version       = Samovar::VERSION
 	spec.authors       = ["Samuel Williams"]
 	spec.email         = ["samuel.williams@oriontransfer.co.nz"]
 
-	spec.summary       = %q{Flopp is a flexible option parser excellent support for sub-commands and help documentation.}
-	spec.homepage      = "https://github.com/ioquatix/flopp"
+	spec.summary       = %q{Samovar is a flexible option parser excellent support for sub-commands and help documentation.}
+	spec.homepage      = "https://github.com/ioquatix/samovar"
 	spec.license       = "MIT"
 
 	spec.files         = `git ls-files`.split($/)

@@ -18,27 +18,38 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-module Flopp
-	class Split
-		def initialize(key, description, marker: '--')
-			@key = key
-			@description = description
-			@marker = marker
+module Samovar
+	class Table
+		def initialize
+			@rows = []
+			@parser = []
 		end
 		
-		attr :key
+		attr :rows
 		
-		def to_s
-			"#{@marker} <#{@key}...>"
+		def << row
+			@rows << row
+			
+			if row.respond_to?(:parse)
+				@parser << row
+			end
 		end
 		
-		def to_a
-			[to_s, @description]
+		def usage
+			items = Array.new
+			
+			@rows.each do |row|
+				items << row.to_s
+			end
+			
+			items.join(' ')
 		end
 		
 		def parse(input)
-			if offset = input.index(@marker)
-				input.pop(input.size - offset).tap(&:shift)
+			@parser.each do |row|
+				if result = row.parse(input)
+					yield row.key, result, row
+				end
 			end
 		end
 	end

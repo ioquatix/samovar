@@ -20,7 +20,7 @@
 
 require_relative 'flags'
 
-module Flopp
+module Samovar
 	class Option
 		def initialize(flags, description, key: nil, default: nil, value: nil)
 			@flags = Flags.new(flags)

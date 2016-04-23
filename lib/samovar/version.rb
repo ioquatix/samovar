@@ -1,3 +1,3 @@
-module Flopp
+module Samovar
   VERSION = "1.0.1"
 end

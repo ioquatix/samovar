@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-module Flopp
+module Samovar
 	module Output
 		# This is an incomplete implementation of an automatic line wrapping output buffer which handles any kind of output, provided it has special wrapping markers.
 		class LineWrapping

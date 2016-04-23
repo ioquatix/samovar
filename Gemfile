@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in flopp.gemspec
+# Specify your gem's dependencies in samovar.gemspec
 gemspec
 
 group :test do

@@ -18,38 +18,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-module Flopp
-	class Table
-		def initialize
-			@rows = []
-			@parser = []
+module Samovar
+	class One
+		def initialize(key, description, pattern: //)
+			@key = key
+			@description = description
+			@pattern = pattern
 		end
 		
-		attr :rows
+		attr :key
 		
-		def << row
-			@rows << row
-			
-			if row.respond_to?(:parse)
-				@parser << row
-			end
+		def to_s
+			"<#{@key}>"
 		end
 		
-		def usage
-			items = Array.new
-			
-			@rows.each do |row|
-				items << row.to_s
-			end
-			
-			items.join(' ')
+		def to_a
+			[to_s, @description]
 		end
 		
 		def parse(input)
-			@parser.each do |row|
-				if result = row.parse(input)
-					yield row.key, result, row
-				end
+			if input.first =~ @pattern
+				input.shift
 			end
 		end
 	end

@@ -18,84 +18,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-module Flopp
-	class Flags
-		def initialize(text)
-			@text = text
-			
-			@ordered = text.split(/\s+\|\s+/).map{|part| Flag.new(part)}
+module Samovar
+	class Split
+		def initialize(key, description, marker: '--')
+			@key = key
+			@description = description
+			@marker = marker
 		end
 		
-		def each(&block)
-			@ordered.each(&block)
-		end
-		
-		def first
-			@ordered.first
-		end
-		
-		# Whether or not this flag should have a true/false value if not specified otherwise.
-		def boolean?
-			@ordered.count == 1 and @ordered.first.value.nil?
-		end
-		
-		def count
-			return @ordered.count
-		end
+		attr :key
 		
 		def to_s
-			'[' + @ordered.join(' | ') + ']'
+			"#{@marker} <#{@key}...>"
+		end
+		
+		def to_a
+			[to_s, @description]
 		end
 		
 		def parse(input)
-			@ordered.each do |flag|
-				if result = flag.parse(input)
-					return result
-				end
-			end
-			
-			return nil
-		end
-	end
-	
-	class Flag
-		def initialize(text)
-			@text = text
-			
-			if text =~ /(.*?)\s(\<.*?\>)/
-				@prefix = $1
-				@value = $2
-			else
-				@prefix = @text
-			end
-			
-			*@alternatives, @prefix = @prefix.split('/')
-		end
-		
-		attr :text
-		attr :prefix
-		attr :alternatives
-		attr :value
-		
-		def to_s
-			@text
-		end
-		
-		def prefix?(token)
-			@prefix == token or @alternatives.include?(token)
-		end
-		
-		def key
-			@key ||= @prefix.sub(/^-*/, '').gsub('-', '_').to_sym
-		end
-		
-		def parse(input)
-			if prefix?(input.first)
-				if @value
-					input.shift(2).last
-				else
-					input.shift; key
-				end
+			if offset = input.index(@marker)
+				input.pop(input.size - offset).tap(&:shift)
 			end
 		end
 	end

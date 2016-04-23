@@ -1,9 +1,9 @@
 
-require 'flopp'
+require 'samovar'
 require 'stringio'
 
 module Command
-	class Bottom < Flopp::Command
+	class Bottom < Samovar::Command
 		self.description = "Create a new teapot package using the specified repository."
 		
 		one :project_name, "The name of the new project in title-case, e.g. 'My Project'."
@@ -11,7 +11,7 @@ module Command
 		split :argv, "Additional arguments to be passed to the sub-process."
 	end
 
-	class Top < Flopp::Command
+	class Top < Samovar::Command
 		self.description = "A decentralised package manager and build tool."
 		
 		options do
@@ -27,7 +27,7 @@ module Command
 	end
 end
 
-describe Flopp do
+describe Samovar do
 	it "should parse a simple command" do
 		top = Command::Top.parse(["-c", "path", "bottom", "foobar", "A", "B", "--", "args", "args"])
 		

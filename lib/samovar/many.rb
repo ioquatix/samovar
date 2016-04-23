@@ -18,38 +18,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-module Flopp
-	class Nested
-		def initialize(name, commands, key: :command)
-			@name = name
-			@commands = commands
+module Samovar
+	class Many
+		def initialize(key, description, stop: /^-/)
 			@key = key
+			@description = description
+			@stop = stop
 		end
 		
 		attr :key
 		
 		def to_s
-			@name
+			"<#{key}...>"
 		end
 		
 		def to_a
-			[@name, "One of #{@commands.keys.join(', ')}."]
+			[to_s, @description]
 		end
 		
 		def parse(input)
-			if command = @commands[input.first]
-				input.shift
-				
-				# puts "Instantiating #{command} with #{input}"
-				command.new(input)
-			end
-		end
-		
-		def usage(rows)
-			rows << self
-			
-			@commands.each do |key, klass|
-				klass.usage(rows, key)
+			if @stop and stop_index = input.index{|item| @stop === item}
+				input.shift(stop_index)
+			else
+				input.shift(input.size)
 			end
 		end
 	end

@@ -21,7 +21,7 @@
 require 'mapping/model'
 require 'rainbow'
 
-module Flopp
+module Samovar
 	module Output
 		class Header
 			def initialize(name, object)
