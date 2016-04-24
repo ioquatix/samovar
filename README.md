@@ -30,6 +30,82 @@ Or install it yourself as:
 
 ## Usage
 
+### Basic Options
+
+	require 'samovar'
+	
+	class Application < Samovar::Command
+		options do
+			option '-f/--frobulate <text>', "Frobulate the text"
+			option '-x | -y', "Specify either x or y axis.", key: :axis
+			option '-F/--yeah/--flag', "A boolean flag with several forms."
+		end
+	end
+	
+	application = Application.new(['-f', 'Algebraic!'])
+	application.options[:frobulate] # 'Algebraic!'
+	
+	application = Application.new(['-x', '-y'])
+	application.options[:axis] # :y
+	
+	application = Application.new(['-F'])
+	application.options[:flag] # true
+
+### Nested Commands
+
+	require 'samovar'
+	
+	class Create < Samovar::Command
+		def invoke(parent)
+			puts "Creating"
+		end
+	end
+	
+	class Application < Samovar::Command
+		nested '<command>',
+			'create' => Create
+		
+		def invoke(program_name: File.basename($0))
+			if @command
+				@command.invoke
+			else
+				print_usage(program_name)
+			end
+		end
+	end
+
+	Application.new(['create']).invoke
+
+### ARGV Splits
+
+	require 'samovar'
+
+	class Application < Samovar::Command
+		many :packages
+		split :argv
+	end
+
+	application = Application.new(['foo', 'bar', 'baz', '--', 'apples', 'oranges', 'feijoas'])
+	application.packages # ['foo', 'bar', 'baz']
+	application.argv # ['apples', 'oranges', 'feijoas']
+
+### Parsing Tokens
+
+	require 'samovar'
+	
+	class Application < Samovar::Command
+		self.description = "Mix together your favorite things."
+		
+		one :fruit, "Name one fruit"
+		many :cakes, "Any cakes you like"
+	end
+
+	application = Application.new(['apple', 'chocolate cake', 'fruit cake'])
+	application.fruit # 'apple'
+	application.cakes # ['chocolate cake', 'fruit cake']
+
+### Real-world Examples
+
 The best example of a working Samovar command line is probably [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb).
 
 [Utopia](https://github.com/ioquatix/utopia/blob/master/lib/utopia/command.rb) shows how to use multiple levels of nested commands.
@@ -46,7 +122,29 @@ Please feel free to submit other examples and I will link to them here.
 
 ### Future Work
 
-One area that I'd like to work on is line-wrapping. Right now, line wrapping is done by the terminal which is a bit ugly in some cases. There is a [half-implemented elegant solution](lib/samovar/output/line_wrapper.rb).
+#### Line Wrapping
+
+Line wrapping is done by the terminal which is a bit ugly in some cases. There is a [half-implemented elegant solution](lib/samovar/output/line_wrapper.rb).
+
+#### Type Coercion
+
+It might make sense to enforce constraints at parse time.. or not. For example, if an option is given like '--count <int>' we should probably parse an integer?
+
+#### Multi-value Options
+
+Right now, options can take a single argument, e.g. '--count <int>'. Ideally, we support a specific sub-parser defined by the option, e.g. '--count <int...>' or '--tag <section> <tags...>'. These would map to specific parsers using `Samovar::One` and `Samovar::Many` internally.
+
+#### Global Options
+
+Options can only be parsed at the place they are explicitly mentioned, e.g. a command with sub-commands won't parse an option added to the end of the command:
+
+	command list --help
+
+One might reasonably expect this to parse but it isn't so easy to generalize this:
+
+	command list -- --help
+
+In this case, do we show help? Some effort is required to disambiguate this. Initially, it makes sense to keep things as simple as possible. But, it might make sense for some options to be declared in a global scope, which are extracted before parsing begins. I'm not sure if this is really a good idea. It might just be better to give good error output in this case (you specified an option but it was in the wrong place).
 
 ## License
 
