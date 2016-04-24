@@ -27,6 +27,9 @@ require_relative 'split'
 
 require_relative 'output'
 
+require_relative 'command/system'
+require_relative 'command/track_time'
+
 module Samovar
 	class IncompleteParse < StandardError
 	end
