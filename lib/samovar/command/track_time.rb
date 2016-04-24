@@ -18,6 +18,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require 'time'
+
 module Samovar
-	VERSION = "1.1.0"
+	class Command
+		def track_time
+			start_time = Time.now
+			
+			yield
+		ensure
+			end_time = Time.now
+			elapsed_time = end_time - start_time
+			
+			$stdout.flush
+			$stderr.puts Rainbow("Elapsed Time: %0.3fs" % elapsed_time).magenta
+		end
+	end
 end
