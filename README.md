@@ -128,11 +128,11 @@ Line wrapping is done by the terminal which is a bit ugly in some cases. There i
 
 #### Type Coercion
 
-It might make sense to enforce constraints at parse time.. or not. For example, if an option is given like '--count <int>' we should probably parse an integer?
+It might make sense to enforce constraints at parse time.. or not. For example, if an option is given like `--count <int>` we should probably parse an integer?
 
 #### Multi-value Options
 
-Right now, options can take a single argument, e.g. '--count <int>'. Ideally, we support a specific sub-parser defined by the option, e.g. '--count <int...>' or '--tag <section> <tags...>'. These would map to specific parsers using `Samovar::One` and `Samovar::Many` internally.
+Right now, options can take a single argument, e.g. `--count <int>`. Ideally, we support a specific sub-parser defined by the option, e.g. `--count <int...>` or `--tag <section> <tags...>`. These would map to specific parsers using `Samovar::One` and `Samovar::Many` internally.
 
 #### Global Options
 
