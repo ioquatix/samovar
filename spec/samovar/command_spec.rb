@@ -27,7 +27,7 @@ module Command
 	end
 end
 
-describe Samovar do
+describe Samovar::Command do
 	it "should parse a simple command" do
 		top = Command::Top.parse(["-c", "path", "bottom", "foobar", "A", "B", "--", "args", "args"])
 		
