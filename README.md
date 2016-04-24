@@ -30,7 +30,11 @@ Or install it yourself as:
 
 ## Usage
 
-The best example of a working Samovar command line is probably [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb). Please feel free to submit other examples and I will link to them here.
+The best example of a working Samovar command line is probably [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb).
+
+[Utopia](https://github.com/ioquatix/utopia/blob/master/lib/utopia/command.rb) shows how to use multiple levels of nested commands.
+
+Please feel free to submit other examples and I will link to them here.
 
 ## Contributing
 
