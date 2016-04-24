@@ -2,7 +2,7 @@
 
 ![Teapot](teapot.png)
 
-Samovar is a modern framework for building command-line tools and applications. It provides a declarative class-based DSL for building command-line parsers that include automatic documentation generation `--help`. It helps you keep your functionality clean and isolated where possible.
+Samovar is a modern framework for building command-line tools and applications. It provides a declarative class-based DSL for building command-line parsers that include automatic documentation generation. It helps you keep your functionality clean and isolated where possible.
 
 [![Build Status](https://secure.travis-ci.org/ioquatix/samovar.svg)](http://travis-ci.org/ioquatix/samovar)
 [![Code Climate](https://codeclimate.com/github/ioquatix/samovar.svg)](https://codeclimate.com/github/ioquatix/samovar)
@@ -151,6 +151,10 @@ In this case, do we show help? Some effort is required to disambiguate this. Ini
 Because of the structure of the Samovar command parser, it should be possible to generate a list of all possible tokens at each point. Therefore, semantically correct tab completion should be possible.
 
 As a secondary to this, it would be nice if `Samovar::One` and `Samovar::Many` could take a list of potential tokens so that auto-completion could give meaningful suggestions, and possibly improved validation.
+
+#### Short/Long Help
+
+It might be interesting to explore whether it's possible to have `-h` and `--help` do different things. This could include command specific help output, more detailed help output (similar to a man page), and other useful help related tasks.
 
 ## License
 
