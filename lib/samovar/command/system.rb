@@ -21,25 +21,29 @@
 require 'time'
 
 module Samovar
+	class SystemError < RuntimeError
+	end
+	
 	class Command
-		class SystemError < RuntimeError
-		end
-		
 		def system(*args, **options)
+			command_line = args.join(' ')
+			
 			pid = Process.spawn(*args, **options)
 			
-			command_line = args.join(' ')
 			puts Rainbow(command_line).color(:blue)
 			
 			status = Process.waitpid2(pid).last
 			
 			return status.success?
+		rescue Errno::ENOENT
+			return false
 		end
 		
 		def system!(*args, **options)
+			command_line = args.join(' ')
+			
 			pid = Process.spawn(*args, **options)
 			
-			command_line = args.join(' ')
 			puts Rainbow(command_line).color(:blue)
 			
 			status = Process.waitpid2(pid).last
@@ -47,8 +51,10 @@ module Samovar
 			if status.success?
 				return true
 			else
-				raise SystemError.new("Command #{command_line} failed#{status.to_s}")
+				raise SystemError.new("Command #{command_line.dump} failed: #{status.to_s}")
 			end
+		rescue Errno::ENOENT
+			raise SystemError.new("Command #{command_line.dump} failed: #{$!}")
 		end
 	end
 end

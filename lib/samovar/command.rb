@@ -43,10 +43,10 @@ module Samovar
 			return command
 		end
 		
-		def initialize(input)
+		def initialize(input = nil)
 			self.class.table.parse(input) do |key, value|
 				self.send("#{key}=", value)
-			end
+			end if input
 		end
 		
 		def [] key
