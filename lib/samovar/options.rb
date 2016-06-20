@@ -42,6 +42,8 @@ module Samovar
 		attr :description
 		attr :type
 		
+		attr :default
+		
 		attr :key
 		
 		def parse(input)
@@ -77,11 +79,17 @@ module Samovar
 		def initialize(title = "Options", key: :options)
 			@title = title
 			@ordered = []
+			
+			# We use this flag to option cache to improve parsing performance:
 			@keyed = {}
+			
 			@key = key
+			
+			@defaults = {}
 		end
 		
 		attr :key
+		attr :defaults
 		
 		def option(*args, **options)
 			self << Option.new(*args, **options)
@@ -96,10 +104,14 @@ module Samovar
 					@keyed[alternative] = option
 				end
 			end
+			
+			if default = option.default
+				@defaults[option.key] = option.default
+			end
 		end
 		
 		def parse(input)
-			values = Hash.new
+			values = @defaults.dup
 			
 			while option = @keyed[input.first]
 				if result = option.parse(input)

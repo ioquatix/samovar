@@ -15,7 +15,7 @@ module Command
 		self.description = "A decentralised package manager and build tool."
 		
 		options do
-			option '-c/--configuration <name>', "Specify a specific build configuration.", default: ENV['TEAPOT_CONFIGURATION']
+			option '-c/--configuration <name>', "Specify a specific build configuration.", default: 'TEAPOT_CONFIGURATION'
 			option '-i/--in/--root <path>', "Work in the given root directory."
 			option '--verbose | --quiet', "Verbosity of output for debugging.", key: :logging
 			option '-h/--help', "Print out help information."
@@ -28,6 +28,11 @@ module Command
 end
 
 describe Samovar::Command do
+	it "should use default value" do
+		top = Command::Top.parse([])
+		expect(top.options[:configuration]).to be == 'TEAPOT_CONFIGURATION'
+	end
+	
 	it "should parse a simple command" do
 		top = Command::Top.parse(["-c", "path", "bottom", "foobar", "A", "B", "--", "args", "args"])
 		
