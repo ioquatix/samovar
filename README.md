@@ -106,9 +106,9 @@ Or install it yourself as:
 
 ### Real-world Examples
 
-The best example of a working Samovar command line is probably [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb).
-
-[Utopia](https://github.com/ioquatix/utopia/blob/master/lib/utopia/command.rb) shows how to use multiple levels of nested commands.
+- [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb) is a build system and uses multiple top-level commands.
+- [Utopia](https://github.com/ioquatix/utopia/blob/master/lib/utopia/command.rb) is a web application platform and uses nested commands.
+- [LSync](https://github.com/ioquatix/lsync/blob/master/lib/lsync/command.rb) is a backup tool and sends commands across the network.
 
 Please feel free to submit other examples and I will link to them here.
 
