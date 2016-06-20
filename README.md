@@ -14,6 +14,12 @@ I've been using [Trollop](https://github.com/ManageIQ/trollop) and while it's no
 
 One of the other issues I had with existing frameworks is testability. Most frameworks expect to have some pretty heavy logic directly in the binary executable, or at least don't structure your code in a way which makes testing easy. Samovar structures your command processing logic into classes which can be easily tested in isolation, which means that you can mock up and [spec your command-line executables easily](https://github.com/ioquatix/teapot/blob/master/spec/teapot/command_spec.rb).
 
+## Examples
+
+- [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb) is a build system and uses multiple top-level commands.
+- [Utopia](https://github.com/ioquatix/utopia/blob/master/lib/utopia/command.rb) is a web application platform and uses nested commands.
+- [LSync](https://github.com/ioquatix/lsync/blob/master/lib/lsync/command.rb) is a backup tool and sends commands across the network.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -103,14 +109,6 @@ Or install it yourself as:
 	application = Application.new(['apple', 'chocolate cake', 'fruit cake'])
 	application.fruit # 'apple'
 	application.cakes # ['chocolate cake', 'fruit cake']
-
-### Real-world Examples
-
-- [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb) is a build system and uses multiple top-level commands.
-- [Utopia](https://github.com/ioquatix/utopia/blob/master/lib/utopia/command.rb) is a web application platform and uses nested commands.
-- [LSync](https://github.com/ioquatix/lsync/blob/master/lib/lsync/command.rb) is a backup tool and sends commands across the network.
-
-Please feel free to submit other examples and I will link to them here.
 
 ## Contributing
 
