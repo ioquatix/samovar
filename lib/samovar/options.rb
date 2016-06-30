@@ -22,7 +22,7 @@ require_relative 'flags'
 
 module Samovar
 	class Option
-		def initialize(flags, description, key: nil, default: nil, value: nil)
+		def initialize(flags, description, key: nil, default: nil, value: nil, type: nil, &block)
 			@flags = Flags.new(flags)
 			@description = description
 			
@@ -36,6 +36,8 @@ module Samovar
 			
 			@value = value
 			@value ||= true if @flags.boolean?
+			
+			@type = block_given? ? block : type
 		end
 		
 		attr :flags
@@ -46,9 +48,17 @@ module Samovar
 		
 		attr :key
 		
+		def coerce(result)
+			if @type
+				@type.call(result)
+			else
+				result
+			end
+		end
+		
 		def parse(input)
 			if result = @flags.parse(input)
-				@value.nil? ? result : @value
+				@value.nil? ? coerce(result) : @value
 			else
 				@default
 			end
@@ -91,8 +101,8 @@ module Samovar
 		attr :key
 		attr :defaults
 		
-		def option(*args, **options)
-			self << Option.new(*args, **options)
+		def option(*args, **options, &block)
+			self << Option.new(*args, **options, &block)
 		end
 		
 		def << option

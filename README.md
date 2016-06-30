@@ -45,6 +45,9 @@ Or install it yourself as:
 			option '-f/--frobulate <text>', "Frobulate the text"
 			option '-x | -y', "Specify either x or y axis.", key: :axis
 			option '-F/--yeah/--flag', "A boolean flag with several forms."
+			option '--things <a,b,c>', "A list of things" do |value|
+				value.split(/\s*,\s*/)
+			end
 		end
 	end
 	
@@ -56,6 +59,9 @@ Or install it yourself as:
 	
 	application = Application.new(['-F'])
 	application.options[:flag] # true
+	
+	application = Application.new(['--things', 'x,y,z'])
+	application.options[:things] # ['x', 'y', 'z']
 
 ### Nested Commands
 
