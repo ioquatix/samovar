@@ -18,7 +18,7 @@ One of the other issues I had with existing frameworks is testability. Most fram
 
 - [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb) is a build system and uses multiple top-level commands.
 - [Utopia](https://github.com/ioquatix/utopia/blob/master/lib/utopia/command.rb) is a web application platform and uses nested commands.
-- [Synco](https://github.com/ioquatix/lsync/blob/master/lib/synco/command.rb) is a backup tool and sends commands across the network and has lots of options with default values.
+- [Synco](https://github.com/ioquatix/synco/blob/master/lib/synco/command.rb) is a backup tool and sends commands across the network and has lots of options with default values.
 
 ## Installation
 
