@@ -34,10 +34,12 @@ module Samovar
 			
 			@default = default
 			
+			# If the value is given, it overrides the user specified input.
 			@value = value
 			@value ||= true if @flags.boolean?
 			
-			@type = block_given? ? block : type
+			@type = type
+			@block = block
 		end
 		
 		attr :flags
@@ -48,12 +50,28 @@ module Samovar
 		
 		attr :key
 		
+		def coerce_type(result)
+			if @type == Integer
+				Integer(result)
+			elsif @type == Float
+				Float(result)
+			elsif @type.respond_to? :call
+				@type.call(result)
+			elsif @type.respond_to? :new
+				@type.new(result)
+			end
+		end
+		
 		def coerce(result)
 			if @type
-				@type.call(result)
-			else
-				result
+				result = coerce_type(result)
 			end
+			
+			if @block
+				result = @block.call(result)
+			end
+			
+			return result
 		end
 		
 		def parse(input)
