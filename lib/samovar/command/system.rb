@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require 'time'
+require 'shellwords'
 
 module Samovar
 	class SystemError < RuntimeError
@@ -26,35 +27,27 @@ module Samovar
 	
 	class Command
 		def system(*args, **options)
-			command_line = args.join(' ')
+			log_system(args, options)
 			
-			pid = Process.spawn(*args, **options)
-			
-			puts Rainbow(command_line).color(:blue)
-			
-			status = Process.waitpid2(pid).last
-			
-			return status.success?
+			Kernel::system(*args, **options)
 		rescue Errno::ENOENT
 			return false
 		end
 		
 		def system!(*args, **options)
-			command_line = args.join(' ')
-			
-			pid = Process.spawn(*args, **options)
-			
-			puts Rainbow(command_line).color(:blue)
-			
-			status = Process.waitpid2(pid).last
-			
-			if status.success?
+			if system(*args, **options)
 				return true
 			else
-				raise SystemError.new("Command #{command_line.dump} failed: #{status.to_s}")
+				raise SystemError.new("Command #{args.first.inspect} failed: #{$?.to_s}")
 			end
-		rescue Errno::ENOENT
-			raise SystemError.new("Command #{command_line.dump} failed: #{$!}")
+		end
+		
+		private
+		
+		def log_system(args, options)
+			# Print out something half-decent:
+			command_line = Shellwords.join(args)
+			puts Rainbow(command_line).color(:blue)
 		end
 	end
 end
