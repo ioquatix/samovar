@@ -47,14 +47,18 @@ module Samovar
 			self.parse(input)
 		end
 		
-		def initialize(input = nil)
-			self.class.table.parse(input) do |key, value|
-				self.send("#{key}=", value)
-			end if input
+		def [](*input)
+			self.dup.tap{|command| command.parse(input)}
 		end
 		
-		def [] key
-			@attributes[key]
+		def parse(input)
+			self.class.table.parse(input) do |key, value|
+				self.send("#{key}=", value)
+			end
+		end
+		
+		def initialize(input = nil)
+			parse(input) if input
 		end
 		
 		class << self
