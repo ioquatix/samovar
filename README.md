@@ -116,6 +116,18 @@ Or install it yourself as:
 	application.fruit # 'apple'
 	application.cakes # ['chocolate cake', 'fruit cake']
 
+### Explicit Commands
+
+Given a custom `Samovar::Command` subclass, you can instantiate it with options:
+
+	application = Application['--root', path]
+
+You can also duplicate an existing command instance with additions/changes:
+
+	concurrent_application = application['--threads', 12]
+
+These forms can be useful when invoking one command from another, or in unit tests.
+
 ## Contributing
 
 1. Fork it
