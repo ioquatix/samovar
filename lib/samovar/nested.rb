@@ -36,7 +36,21 @@ module Samovar
 		end
 		
 		def to_a
-			[@name, "One of: #{@commands.keys.join(', ')}."]
+			usage = [@name]
+			
+			if @commands.size == 0
+				usage << "No commands available."
+			elsif @commands.size == 1
+				usage << "Only #{@commands.first}."
+			else
+				usage << "One of: #{@commands.keys.join(', ')}."
+			end
+			
+			if @default
+				usage << "Default: #{@default}"
+			end
+			
+			return usage
 		end
 		
 		def parse(input, default)

@@ -36,13 +36,7 @@ module Samovar
 		end
 		
 		def usage
-			items = Array.new
-			
-			@rows.each do |row|
-				items << row.to_s
-			end
-			
-			items.join(' ')
+			@rows.collect(&:to_s).join(' ')
 		end
 		
 		def parse(input, command)
