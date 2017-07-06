@@ -1,12 +1,9 @@
 require "bundler/gem_tasks"
 require "rspec/core/rake_task"
 
-RSpec::Core::RakeTask.new(:spec) do |task|
-	begin
-		require('simplecov/version')
-		task.rspec_opts = %w{--require simplecov} if ENV['COVERAGE']
-	rescue LoadError
-	end
-end
+# Load all rake tasks:
+import(*Dir.glob('tasks/**/*.rake'))
 
-task :default => :spec
+RSpec::Core::RakeTask.new(:test)
+
+task :default => :test
