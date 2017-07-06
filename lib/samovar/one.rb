@@ -36,10 +36,10 @@ module Samovar
 			[to_s, @description]
 		end
 		
-		def parse(input)
+		def parse(input, default)
 			if input.first =~ @pattern
 				input.shift
-			end
+			end || default
 		end
 	end
 end

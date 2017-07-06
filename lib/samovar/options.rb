@@ -74,12 +74,10 @@ module Samovar
 			return result
 		end
 		
-		def parse(input)
+		def parse(input, default = @default)
 			if result = @flags.parse(input)
 				@value.nil? ? coerce(result) : @value
-			else
-				@default
-			end
+			end || default
 		end
 		
 		def to_s
@@ -138,8 +136,8 @@ module Samovar
 			end
 		end
 		
-		def parse(input)
-			values = @defaults.dup
+		def parse(input, default)
+			values = (default || @defaults).dup
 			
 			while option = @keyed[input.first]
 				if result = option.parse(input)

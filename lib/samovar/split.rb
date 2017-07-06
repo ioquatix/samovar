@@ -36,10 +36,10 @@ module Samovar
 			[to_s, @description]
 		end
 		
-		def parse(input)
+		def parse(input, default = nil)
 			if offset = input.index(@marker)
 				input.pop(input.size - offset).tap(&:shift)
-			end
+			end || default
 		end
 	end
 end

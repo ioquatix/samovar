@@ -20,10 +20,13 @@
 
 module Samovar
 	class Nested
-		def initialize(name, commands, key: :command)
+		def initialize(name, commands, key: :command, default: nil)
 			@name = name
 			@commands = commands
 			@key = key
+			
+			# This is the default name [of a command], not the default command:
+			@default = default
 		end
 		
 		attr :key
@@ -33,15 +36,17 @@ module Samovar
 		end
 		
 		def to_a
-			[@name, "One of #{@commands.keys.join(', ')}."]
+			[@name, "One of: #{@commands.keys.join(', ')}."]
 		end
 		
-		def parse(input)
+		def parse(input, default)
 			if command = @commands[input.first]
 				input.shift
 				
 				# puts "Instantiating #{command} with #{input}"
 				command.new(input)
+			elsif @default
+				default || @commands[@default].new(input)
 			end
 		end
 		

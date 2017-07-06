@@ -2,7 +2,7 @@
 require 'samovar'
 require 'stringio'
 
-module Command
+module Samovar::CommandSpec
 	class Bottom < Samovar::Command
 		self.description = "Create a new teapot package using the specified repository."
 		
@@ -25,37 +25,37 @@ module Command
 		nested '<command>',
 			'bottom' => Bottom
 	end
-end
 
-describe Samovar::Command do
-	it "should use default value" do
-		top = Command::Top.parse([])
-		expect(top.options[:configuration]).to be == 'TEAPOT_CONFIGURATION'
-	end
-	
-	it "should parse a simple command" do
-		top = Command::Top.parse(["-c", "path", "bottom", "foobar", "A", "B", "--", "args", "args"])
+	RSpec.describe Samovar::Command do
+		it "should use default value" do
+			top = Top.parse([])
+			expect(top.options[:configuration]).to be == 'TEAPOT_CONFIGURATION'
+		end
 		
-		expect(top.options[:configuration]).to be == 'path'
-		expect(top.command.class).to be == Command::Bottom
-		expect(top.command.project_name).to be == 'foobar'
-		expect(top.command.packages).to be == ['A', 'B']
-		expect(top.command.argv).to be == ["args", "args"]
-	end
-	
-	it "should generate documentation" do
-		top = Command::Top.new([])
-		buffer = StringIO.new
-		top.print_usage('top', output: buffer)
+		it "should parse a simple command" do
+			top = Top.parse(["-c", "path", "bottom", "foobar", "A", "B", "--", "args", "args"])
+			
+			expect(top.options[:configuration]).to be == 'path'
+			expect(top.command.class).to be == Bottom
+			expect(top.command.project_name).to be == 'foobar'
+			expect(top.command.packages).to be == ['A', 'B']
+			expect(top.command.argv).to be == ["args", "args"]
+		end
 		
-		expect(buffer.string).to be_include(Command::Top.description)
-	end
-	
-	it "can run commands" do
-		expect(subject.system("ls")).to be_truthy
-		expect(subject.system!("ls")).to be_truthy
+		it "should generate documentation" do
+			top = Top.new([])
+			buffer = StringIO.new
+			top.print_usage('top', output: buffer)
+			
+			expect(buffer.string).to be_include(Top.description)
+		end
 		
-		expect(subject.system("fail")).to be_falsey
-		expect{subject.system!("fail")}.to raise_error(Samovar::SystemError)
+		it "can run commands" do
+			expect(subject.system("ls")).to be_truthy
+			expect(subject.system!("ls")).to be_truthy
+			
+			expect(subject.system("fail")).to be_falsey
+			expect{subject.system!("fail")}.to raise_error(Samovar::SystemError)
+		end
 	end
 end

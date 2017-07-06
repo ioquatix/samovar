@@ -45,10 +45,12 @@ module Samovar
 			items.join(' ')
 		end
 		
-		def parse(input)
+		def parse(input, command)
 			@parser.each do |row|
-				if result = row.parse(input)
-					yield row.key, result, row
+				current = command.send(row.key)
+				
+				if result = row.parse(input, current)
+					command.send("#{row.key}=", result)
 				end
 			end
 		end

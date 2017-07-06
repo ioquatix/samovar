@@ -36,12 +36,12 @@ module Samovar
 			[to_s, @description]
 		end
 		
-		def parse(input)
+		def parse(input, default)
 			if @stop and stop_index = input.index{|item| @stop === item}
 				input.shift(stop_index)
 			else
 				input.shift(input.size)
-			end
+			end || default
 		end
 	end
 end
