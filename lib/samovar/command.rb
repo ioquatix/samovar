@@ -51,6 +51,10 @@ module Samovar
 			self.dup.tap{|command| command.parse(input)}
 		end
 		
+		def parse(input)
+			self.class.table.parse(input, self)
+		end
+		
 		def initialize(input = nil)
 			parse(input) if input
 		end
@@ -117,12 +121,6 @@ module Samovar
 			self.class.usage(rows, *args)
 			
 			formatter.print(rows, output)
-		end
-		
-		private
-		
-		def parse(input)
-			self.class.table.parse(input, self)
 		end
 	end
 end

@@ -28,12 +28,21 @@ module Samovar::CommandSpec
 
 	RSpec.describe Samovar::Command do
 		it "should use default value" do
-			top = Top.parse([])
+			top = Top[]
 			expect(top.options[:configuration]).to be == 'TEAPOT_CONFIGURATION'
 		end
 		
+		it "can update options" do
+			top = Top[]
+			expect(top.options[:configuration]).to be == 'TEAPOT_CONFIGURATION'
+			
+			top = top['--verbose']
+			expect(top.options[:configuration]).to be == 'TEAPOT_CONFIGURATION'
+			expect(top.options[:logging]).to be == :verbose
+		end
+		
 		it "should parse a simple command" do
-			top = Top.parse(["-c", "path", "bottom", "foobar", "A", "B", "--", "args", "args"])
+			top = Top["-c", "path", "bottom", "foobar", "A", "B", "--", "args", "args"]
 			
 			expect(top.options[:configuration]).to be == 'path'
 			expect(top.command.class).to be == Bottom
@@ -43,7 +52,7 @@ module Samovar::CommandSpec
 		end
 		
 		it "should generate documentation" do
-			top = Top.new([])
+			top = Top[]
 			buffer = StringIO.new
 			top.print_usage('top', output: buffer)
 			
