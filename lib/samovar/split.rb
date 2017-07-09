@@ -20,10 +20,11 @@
 
 module Samovar
 	class Split
-		def initialize(key, description, marker: '--')
+		def initialize(key, description, marker: '--', default: nil)
 			@key = key
 			@description = description
 			@marker = marker
+			@default = default
 		end
 		
 		attr :key
@@ -33,10 +34,16 @@ module Samovar
 		end
 		
 		def to_a
-			[to_s, @description]
+			usage = [to_s, @description]
+			
+			if @default
+				usage << "Default: #{@default.inspect}"
+			end
+			
+			return usage
 		end
 		
-		def parse(input, default = nil)
+		def parse(input, default = @default)
 			if offset = input.index(@marker)
 				input.pop(input.size - offset).tap(&:shift)
 			end || default

@@ -20,10 +20,11 @@
 
 module Samovar
 	class One
-		def initialize(key, description, pattern: //)
+		def initialize(key, description, pattern: //, default: nil)
 			@key = key
 			@description = description
 			@pattern = pattern
+			@default = default
 		end
 		
 		attr :key
@@ -33,10 +34,16 @@ module Samovar
 		end
 		
 		def to_a
-			[to_s, @description]
+			usage = [to_s, @description]
+			
+			if @default
+				usage << "Default: #{@default.inspect}"
+			end
+			
+			return usage
 		end
 		
-		def parse(input, default)
+		def parse(input, default = @default)
 			if input.first =~ @pattern
 				input.shift
 			end || default

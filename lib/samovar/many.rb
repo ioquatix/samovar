@@ -20,10 +20,11 @@
 
 module Samovar
 	class Many
-		def initialize(key, description, stop: /^-/)
+		def initialize(key, description, stop: /^-/, default: nil)
 			@key = key
 			@description = description
 			@stop = stop
+			@default = default
 		end
 		
 		attr :key
@@ -33,10 +34,16 @@ module Samovar
 		end
 		
 		def to_a
-			[to_s, @description]
+			usage = [to_s, @description]
+			
+			if @default
+				usage << "Default: #{@default.inspect}"
+			end
+			
+			return usage
 		end
 		
-		def parse(input, default)
+		def parse(input, default = @default)
 			if @stop and stop_index = input.index{|item| @stop === item}
 				input.shift(stop_index)
 			else
