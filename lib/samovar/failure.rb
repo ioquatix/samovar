@@ -18,38 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative '../failure'
-
-require 'time'
-require 'shellwords'
-
 module Samovar
-	class SystemError < Failure
-	end
-	
-	class Command
-		def system(*args, **options)
-			log_system(args, options)
-			
-			Kernel::system(*args, **options)
-		rescue Errno::ENOENT
-			return false
-		end
-		
-		def system!(*args, **options)
-			if system(*args, **options)
-				return true
-			else
-				raise SystemError.new("Command #{args.first.inspect} failed: #{$?.to_s}")
-			end
-		end
-		
-		private
-		
-		def log_system(args, options)
-			# Print out something half-decent:
-			command_line = Shellwords.join(args)
-			puts Rainbow(command_line).color(:blue)
-		end
+	class Failure < RuntimeError
 	end
 end
