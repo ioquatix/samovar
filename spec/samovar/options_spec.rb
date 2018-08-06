@@ -4,6 +4,8 @@ RSpec.describe Samovar::Options do
 		described_class.parse do
 			option '-x <value>', "The x factor", default: 2
 			option '-y <value>', "The y factor"
+			
+			option '--symbol <value>', "A symbol", type: Symbol
 		end
 	end
 	
@@ -20,5 +22,10 @@ RSpec.describe Samovar::Options do
 	it "should update specified values" do
 		values = options.parse(['-x', 10], {x: 1, y: 2, z: 3})
 		expect(values).to be == {x: 10, y: 2, z: 3}
+	end
+	
+	it "converts to symbol" do
+		values = options.parse(['--symbol', 'thing'], {})
+		expect(values[:symbol]).to eq :thing
 	end
 end

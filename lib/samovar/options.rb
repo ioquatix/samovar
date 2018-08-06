@@ -55,6 +55,8 @@ module Samovar
 				Integer(result)
 			elsif @type == Float
 				Float(result)
+			elsif @type == Symbol
+				result.to_sym
 			elsif @type.respond_to? :call
 				@type.call(result)
 			elsif @type.respond_to? :new
