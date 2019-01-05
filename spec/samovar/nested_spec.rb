@@ -17,10 +17,10 @@ module Samovar::NestedSpec
 			option '--help'
 		end
 		
-		nested '<command>',
+		nested '<command>', {
 			'inner-a' => InnerA,
 			'inner-b' => InnerB,
-			default: 'inner-b'
+		}, default: 'inner-b'
 	end
 	
 	RSpec.describe Samovar::Nested do

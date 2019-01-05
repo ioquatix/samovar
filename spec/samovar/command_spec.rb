@@ -22,8 +22,9 @@ module Samovar::CommandSpec
 			option '-v/--version', "Print out the application version."
 		end
 		
-		nested '<command>',
+		nested '<command>', {
 			'bottom' => Bottom
+		}
 	end
 
 	RSpec.describe Samovar::Command do
