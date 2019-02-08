@@ -2,23 +2,19 @@ language: ruby
 dist: xenial
 cache: bundler
 
-before_install:
-  - gem update --system
-  - gem install bundler
-
 matrix:
   include:
     - rvm: 2.3
     - rvm: 2.4
     - rvm: 2.5
     - rvm: 2.6
+    - rvm: 2.6
+      env: COVERAGE=BriefSummary,Coveralls
     - rvm: truffleruby
     - rvm: jruby-head
       env: JRUBY_OPTS="--debug -X+O"
     - rvm: ruby-head
-    - rvm: rbx-3
   allow_failures:
     - rvm: ruby-head
     - rvm: truffleruby
     - rvm: jruby-head
-    - rvm: rbx-3
