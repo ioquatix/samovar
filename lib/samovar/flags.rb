@@ -67,6 +67,7 @@ module Samovar
 				@value = $2
 			else
 				@prefix = @text
+				@value = nil
 			end
 			
 			*@alternatives, @prefix = @prefix.split('/')
