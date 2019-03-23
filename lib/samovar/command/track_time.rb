@@ -20,6 +20,8 @@
 
 require 'time'
 
+require_relative 'terminal'
+
 module Samovar
 	class Command
 		def track_time
@@ -31,7 +33,7 @@ module Samovar
 			elapsed_time = end_time - start_time
 			
 			$stdout.flush
-			$stderr.puts Rainbow("Elapsed Time: %0.3fs" % elapsed_time).magenta
+			terminal.puts("Elapsed Time: %0.3fs" % elapsed_time, style: :summary)
 		end
 	end
 end

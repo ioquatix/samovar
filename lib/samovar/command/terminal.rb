@@ -1,4 +1,4 @@
-# Copyright, 2016, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,6 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require 'time'
+
 module Samovar
-	VERSION = "1.10.0"
+	class Command
+		def terminal(output = $stderr)
+			Event::Terminal.for(output).tap do |terminal|
+				terminal[:command] = terminal.style(:blue)
+				terminal[:summary] = terminal.style(:magenta)
+			end
+		end
+	end
 end

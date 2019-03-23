@@ -19,7 +19,8 @@
 # THE SOFTWARE.
 
 require 'mapping/model'
-require 'rainbow'
+
+require 'event/terminal'
 
 module Samovar
 	module Output
@@ -141,17 +142,21 @@ module Samovar
 				@rows = rows
 				@output = output
 				@width = 80
+				
+				@terminal = Event::Terminal.for(@output)
+				@terminal[:header] = @terminal.style(:blue, nil, :bright)
+				@terminal[:description] = @terminal.style(:blue)
 			end
 			
 			map(Header) do |header, rows|
-				@output.puts unless header == @rows.first
-				@output.puts "#{rows.indentation}#{Rainbow(header.object.command_line(header.name)).bright}"
-				@output.puts "#{rows.indentation}\t#{Rainbow(header.object.description).blue}"
-				@output.puts
+				@terminal.puts unless header == @rows.first
+				@terminal.puts "#{rows.indentation}#{header.object.command_line(header.name)}", style: :header
+				@terminal.puts "#{rows.indentation}\t#{header.object.description}", style: :description
+				@terminal.puts
 			end
 			
 			map(Row) do |row, rows|
-				@output.puts "#{rows.indentation}#{row.align(rows.columns)}"
+				@terminal.puts "#{rows.indentation}#{row.align(rows.columns)}"
 			end
 			
 			map(Rows) do |items|
