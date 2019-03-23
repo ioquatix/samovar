@@ -20,28 +20,54 @@
 
 module Samovar
 	class Table
-		def initialize
-			@rows = []
-			@parser = []
+		def initialize(parent = nil)
+			@parent = parent
+			@rows = {}
 		end
 		
-		attr :rows
+		def each(&block)
+			@rows.each_value(&block)
+		end
 		
 		def << row
-			@rows << row
+			if existing_row = @rows[row.key]
+				existing_row.merge!(row)
+			else
+				@rows[row.key] = row
+			end
+		end
+		
+		def empty?
+			@rows.empty? && @parent&.empty?
+		end
+		
+		def merge_into(table)
+			@parent&.merge_into(table)
 			
-			if row.respond_to?(:parse)
-				@parser << row
+			@rows.each_value do |row|
+				table << row
+			end
+			
+			return table
+		end
+		
+		def merged
+			if @parent.nil? or @parent.empty?
+				return self
+			else
+				merge_into(self.class.new)
 			end
 		end
 		
 		def usage
-			@rows.collect(&:to_s).join(' ')
+			@rows.each_value.collect(&:to_s).join(' ')
 		end
 		
 		def parse(input, command)
-			@parser.each do |row|
-				current = command.send(row.key)
+			@rows.each do |key, row|
+				next unless row.respond_to?(:parse)
+				
+				current = command.send(key)
 				
 				if result = row.parse(input, current)
 					command.send("#{row.key}=", result)

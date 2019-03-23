@@ -150,9 +150,14 @@ module Samovar
 			
 			map(Header) do |header, rows|
 				@terminal.puts unless header == @rows.first
-				@terminal.puts "#{rows.indentation}#{header.object.command_line(header.name)}", style: :header
-				@terminal.puts "#{rows.indentation}\t#{header.object.description}", style: :description
-				@terminal.puts
+				
+				command_line = header.object.command_line(header.name)
+				@terminal.puts "#{rows.indentation}#{command_line}", style: :header
+				
+				if description = header.object.description
+					@terminal.puts "#{rows.indentation}\t#{description}", style: :description
+					@terminal.puts
+				end
 			end
 			
 			map(Row) do |row, rows|

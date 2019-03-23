@@ -12,6 +12,12 @@ module Samovar::NestedSpec
 		end
 	end
 	
+	class InnerC < InnerB
+		options do
+			option '--frobulate'
+		end
+	end
+	
 	class Outer < Samovar::Command
 		options do
 			option '--help'
@@ -20,6 +26,7 @@ module Samovar::NestedSpec
 		nested '<command>', {
 			'inner-a' => InnerA,
 			'inner-b' => InnerB,
+			'inner-c' => InnerC,
 		}, default: 'inner-b'
 	end
 	
@@ -32,6 +39,12 @@ module Samovar::NestedSpec
 		it "should select explicitly named nested command" do
 			outer = Outer['inner-a']
 			expect(outer.command).to be_kind_of(InnerA)
+		end
+		
+		it "can parse derived options" do
+			outer = Outer['inner-c', '--help']
+			expect(outer.command).to be_kind_of(InnerC)
+			expect(outer.command.options).to include(help: true)
 		end
 		
 		xit "should parse help option at outer level" do

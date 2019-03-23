@@ -116,11 +116,24 @@ module Samovar
 			@defaults = {}
 		end
 		
+		attr :title
+		attr :ordered
+		
 		attr :key
 		attr :defaults
 		
+		def each(&block)
+			@ordered.each(&block)
+		end
+		
 		def option(*args, **options, &block)
 			self << Option.new(*args, **options, &block)
+		end
+		
+		def merge!(options)
+			options.each do |option|
+				self << option
+			end
 		end
 		
 		def << option

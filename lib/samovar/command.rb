@@ -52,7 +52,7 @@ module Samovar
 		end
 		
 		def parse(input)
-			self.class.table.parse(input, self)
+			self.class.table.merged.parse(input, self)
 		end
 		
 		def initialize(input = nil)
@@ -64,7 +64,7 @@ module Samovar
 		end
 		
 		def self.table
-			@table ||= Table.new
+			@table ||= Table.new(superclass == Command ? nil : superclass.table)
 		end
 		
 		def self.append(row)
@@ -93,11 +93,11 @@ module Samovar
 			append Split.new(*args, **options)
 		end
 		
-		def self.usage(rows, name)
+		def self.usage(rows, name = self.name)
 			rows.nested(name, self) do |rows|
-				return unless @table
+				return if @table.nil?
 				
-				@table.rows.each do |row|
+				@table.merged.each do |row|
 					if row.respond_to?(:usage)
 						row.usage(rows)
 					else
@@ -109,7 +109,7 @@ module Samovar
 		
 		def self.command_line(name)
 			if @table
-				"#{name} #{@table.usage}"
+				"#{name} #{@table.merged.usage}"
 			else
 				name
 			end
