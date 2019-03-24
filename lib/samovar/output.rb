@@ -144,7 +144,7 @@ module Samovar
 				@width = 80
 				
 				@terminal = Event::Terminal.for(@output)
-				@terminal[:header] = @terminal.style(:blue, nil, :bright)
+				@terminal[:header] = @terminal.style(nil, nil, :bright)
 				@terminal[:description] = @terminal.style(:blue)
 			end
 			
