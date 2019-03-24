@@ -60,7 +60,7 @@ module Samovar
 		end
 		
 		def usage
-			@rows.each_value.collect(&:to_s).join(' ')
+			@rows.each_value.collect(&:to_s).reject(&:empty?).join(' ')
 		end
 		
 		def parse(input, command)

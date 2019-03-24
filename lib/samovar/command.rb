@@ -32,31 +32,31 @@ require_relative 'command/track_time'
 
 module Samovar
 	class IncompleteParse < StandardError
+		def initialize(command, input)
+			@command = command
+			@input = input
+			
+			super "Could not parse token: #{input.first}"
+		end
+		
+		attr :command
+		attr :input
 	end
 	
 	class Command
-		def self.parse(input)
-			command = self.new(input)
+		# The top level entry point for parsing ARGV.
+		def self.parse(input = ARGV)
+			self.new(input)
+		rescue IncompleteParse => error
+			$stderr.puts error.message
 			
-			raise IncompleteParse.new("Could not parse #{input}") unless input.empty?
+			error.command.print_usage(output: $stderr)
 			
-			return command
+			return nil
 		end
 		
 		def self.[](*input)
-			self.parse(input)
-		end
-		
-		def [](*input)
-			self.dup.tap{|command| command.parse(input)}
-		end
-		
-		def parse(input)
-			self.class.table.merged.parse(input, self)
-		end
-		
-		def initialize(input = nil)
-			parse(input) if input
+			self.new(input)
 		end
 		
 		class << self
@@ -93,7 +93,7 @@ module Samovar
 			append Split.new(*args, **options)
 		end
 		
-		def self.usage(rows, name = self.name)
+		def self.usage(rows, name)
 			rows.nested(name, self) do |rows|
 				return if @table.nil?
 				
@@ -115,10 +115,30 @@ module Samovar
 			end
 		end
 		
+		def initialize(input = nil, name: File.basename($0))
+			@name = name
+			
+			parse(input) if input
+		end
+		
+		def [](*input)
+			self.dup.tap{|command| command.parse(input)}
+		end
+		
+		def parse(input)
+			self.class.table.merged.parse(input, self)
+			
+			if input.empty?
+				return self
+			else
+				raise IncompleteParse.new(self, input)
+			end
+		end
+		
 		def print_usage(*args, output: $stderr, formatter: Output::DetailedFormatter)
 			rows = Output::Rows.new
 			
-			self.class.usage(rows, *args)
+			self.class.usage(rows, @name)
 			
 			formatter.print(rows, output)
 		end

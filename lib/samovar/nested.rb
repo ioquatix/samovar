@@ -55,12 +55,12 @@ module Samovar
 		
 		def parse(input, default)
 			if command = @commands[input.first]
-				input.shift
+				name = input.shift
 				
 				# puts "Instantiating #{command} with #{input}"
-				command.new(input)
+				command.new(input, name: name)
 			elsif @default
-				default || @commands[@default].new(input)
+				default || @commands[@default].new(input, name: @default)
 			end
 		end
 		
