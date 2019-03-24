@@ -20,8 +20,6 @@
 
 require_relative '../failure'
 
-require_relative 'terminal'
-
 require 'shellwords'
 
 module Samovar
@@ -50,7 +48,7 @@ module Samovar
 		def log_system(args, options)
 			# Print out something half-decent:
 			command_line = Shellwords.join(args)
-			terminal.puts command_line, style: :command
+			$stderr.puts command_line
 		end
 	end
 end
