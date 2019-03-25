@@ -42,8 +42,8 @@ module Samovar
 			return nil
 		end
 		
-		def self.[](*input)
-			self.new(input)
+		def self.[](*input, **options)
+			self.new(input, **options)
 		end
 		
 		class << self
