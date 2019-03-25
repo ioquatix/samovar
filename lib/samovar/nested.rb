@@ -59,13 +59,16 @@ module Samovar
 			return usage
 		end
 		
+		# @param default [Command] the default command if any.
 		def parse(input, parent = nil, default = nil)
 			if command = @commands[input.first]
 				name = input.shift
 				
 				# puts "Instantiating #{command} with #{input}"
 				command.new(input, name: name, parent: parent)
-			elsif default ||= @default
+			elsif default
+				return default
+			elsif @default
 				@commands[default].new(input, name: default, parent: parent)
 			elsif @required
 				raise MissingValueError.new(parent, self)
