@@ -1,4 +1,4 @@
-# Copyright, 2016, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,4 +18,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'output/usage_formatter'
+module Samovar
+	module Output
+		class Header
+			def initialize(name, object)
+				@name = name
+				@object = object
+			end
+			
+			attr :name
+			attr :object
+			
+			def align(columns)
+				@object.command_line(@name)
+			end
+		end
+	end
+end

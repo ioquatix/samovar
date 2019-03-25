@@ -18,4 +18,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'output/usage_formatter'
+module Samovar
+	module Output
+		class Columns
+			def initialize(rows)
+				@rows = rows
+				@widths = calculate_widths(rows)
+			end
+			
+			attr :widths
+			
+			def calculate_widths(rows)
+				widths = []
+				
+				rows.each do |row|
+					row.each.with_index do |column, index|
+						(widths[index] ||= []) << column.size
+					end
+				end
+				
+				return widths.collect(&:max)
+			end
+		end
+	end
+end

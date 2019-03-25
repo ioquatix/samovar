@@ -132,7 +132,7 @@ module Samovar
 			end
 		end
 		
-		def print_usage(*args, output: $stderr, formatter: Output::DetailedFormatter)
+		def print_usage(*args, output: $stderr, formatter: Output::UsageFormatter)
 			rows = Output::Rows.new
 			
 			self.class.usage(rows, @name)
