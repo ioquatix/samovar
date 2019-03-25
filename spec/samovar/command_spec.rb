@@ -59,13 +59,5 @@ module Samovar::CommandSpec
 			
 			expect(buffer.string).to be_include(Top.description)
 		end
-		
-		it "can run commands" do
-			expect(subject.system("ls")).to be_truthy
-			expect(subject.system!("ls")).to be_truthy
-			
-			expect(subject.system("fail")).to be_falsey
-			expect{subject.system!("fail")}.to raise_error(Samovar::SystemError)
-		end
 	end
 end
