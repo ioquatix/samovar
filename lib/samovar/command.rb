@@ -27,14 +27,14 @@ require_relative 'split'
 
 require_relative 'output'
 
-require_relative 'incomplete_parse'
+require_relative 'error'
 
 module Samovar
 	class Command
 		# The top level entry point for parsing ARGV.
 		def self.parse(input = ARGV)
 			self.new(input)
-		rescue IncompleteParse => error
+		rescue Error => error
 			error.command.print_usage(output: $stderr) do |formatter|
 				formatter.map(error)
 			end
@@ -102,7 +102,7 @@ module Samovar
 			end
 		end
 		
-		def initialize(input = nil, name: File.basename($0), parent: parent)
+		def initialize(input = nil, name: File.basename($0), parent: nil)
 			@name = name
 			@parent = parent
 			

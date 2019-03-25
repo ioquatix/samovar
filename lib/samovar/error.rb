@@ -19,7 +19,10 @@
 # THE SOFTWARE.
 
 module Samovar
-	class IncompleteParse < StandardError
+	class Error < StandardError
+	end
+		
+	class InvalidInputError < Error
 		def initialize(command, input)
 			@command = command
 			@input = input
@@ -37,5 +40,17 @@ module Samovar
 		
 		attr :command
 		attr :input
+	end
+	
+	class MissingValueError < Error
+		def initialize(command, field)
+			@command = command
+			@field = field
+			
+			super "#{field} is required"
+		end
+		
+		attr :command
+		attr :field
 	end
 end

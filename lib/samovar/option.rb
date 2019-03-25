@@ -22,7 +22,7 @@ require_relative 'flags'
 
 module Samovar
 	class Option
-		def initialize(flags, description, key: nil, default: nil, value: nil, type: nil, &block)
+		def initialize(flags, description, key: nil, default: nil, value: nil, type: nil, required: false, &block)
 			@flags = Flags.new(flags)
 			@description = description
 			
@@ -39,16 +39,20 @@ module Samovar
 			@value ||= true if @flags.boolean?
 			
 			@type = type
+			@required = required
 			@block = block
 		end
 		
 		attr :flags
 		attr :description
-		attr :type
-		
+		attr :key
 		attr :default
 		
-		attr :key
+		attr :value
+		
+		attr :type
+		attr :required
+		attr :block
 		
 		def coerce_type(result)
 			if @type == Integer
@@ -79,7 +83,11 @@ module Samovar
 		def parse(input, parent = nil, default = nil)
 			if result = @flags.parse(input)
 				@value.nil? ? coerce(result) : @value
-			end || default || @default
+			elsif default ||= @default
+				return default
+			elsif @required
+				raise MissingValueError.new(parent, self)
+			end
 		end
 		
 		def to_s
@@ -87,8 +95,10 @@ module Samovar
 		end
 		
 		def to_a
-			unless @default.nil?
-				[@flags, @description, "Default: #{@default}"]
+			if @default
+				[@flags, @description, "(default: #{@default})"]
+			elsif @required
+				[@flags, @description, "(required)"]
 			else
 				[@flags, @description]
 			end

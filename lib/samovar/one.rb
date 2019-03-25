@@ -20,17 +20,19 @@
 
 module Samovar
 	class One
-		def initialize(key, description, pattern: //, default: nil)
+		def initialize(key, description, pattern: //, default: nil, required: false)
 			@key = key
 			@description = description
 			@pattern = pattern
 			@default = default
+			@required = required
 		end
 		
 		attr :key
 		attr :description
 		attr :pattern
 		attr :default
+		attr :required
 		
 		def to_s
 			"<#{@key}>"
@@ -40,7 +42,9 @@ module Samovar
 			usage = [to_s, @description]
 			
 			if @default
-				usage << "Default: #{@default.inspect}"
+				usage << "(default: #{@default.inspect})"
+			elsif @required
+				usage << "(required)"
 			end
 			
 			return usage
@@ -49,7 +53,11 @@ module Samovar
 		def parse(input, parent = nil, default = nil)
 			if input.first =~ @pattern
 				input.shift
-			end || default || @default
+			elsif default ||= @default
+				return default
+			elsif @required
+				raise MissingValueError.new(parent, self)
+			end
 		end
 	end
 end

@@ -20,17 +20,20 @@
 
 module Samovar
 	class Nested
-		def initialize(key, commands, default: nil)
+		def initialize(key, commands, default: nil, required: false)
 			@key = key
 			@commands = commands
 			
 			# This is the default name [of a command], not the default command:
 			@default = default
+			
+			@required = required
 		end
 		
 		attr :key
 		attr :commands
 		attr :default
+		attr :required
 		
 		def to_s
 			"<#{@key}>"
@@ -48,7 +51,9 @@ module Samovar
 			end
 			
 			if @default
-				usage << "Default: #{@default}"
+				usage << "(default: #{@default})"
+			elsif @required
+				usage << "(required)"
 			end
 			
 			return usage
@@ -62,6 +67,8 @@ module Samovar
 				command.new(input, name: name, parent: parent)
 			elsif default ||= @default
 				@commands[default].new(input, name: default, parent: parent)
+			elsif @required
+				raise MissingValueError.new(parent, self)
 			end
 		end
 		

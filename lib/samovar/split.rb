@@ -20,17 +20,19 @@
 
 module Samovar
 	class Split
-		def initialize(key, description, marker: '--', default: nil)
+		def initialize(key, description, marker: '--', default: nil, required: false)
 			@key = key
 			@description = description
 			@marker = marker
 			@default = default
+			@required = required
 		end
 		
 		attr :key
 		attr :description
 		attr :marker
 		attr :default
+		attr :required
 		
 		def to_s
 			"#{@marker} <#{@key}...>"
@@ -40,7 +42,9 @@ module Samovar
 			usage = [to_s, @description]
 			
 			if @default
-				usage << "Default: #{@default.inspect}"
+				usage << "(default: #{@default.inspect})"
+			elsif @required
+				usage << "(required)"
 			end
 			
 			return usage
@@ -51,6 +55,8 @@ module Samovar
 				input.pop(input.size - offset).tap(&:shift)
 			elsif default ||= @default
 				return default
+			elsif @required
+				raise MissingValueError.new(parent, self)
 			end
 		end
 	end

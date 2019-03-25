@@ -20,17 +20,19 @@
 
 module Samovar
 	class Many
-		def initialize(key, description, stop: /^-/, default: nil)
+		def initialize(key, description, stop: /^-/, default: nil, required: false)
 			@key = key
 			@description = description
 			@stop = stop
 			@default = default
+			@required = required
 		end
 		
 		attr :key
 		attr :description
 		attr :stop
 		attr :default
+		attr :required
 		
 		def to_s
 			"<#{key}...>"
@@ -40,7 +42,9 @@ module Samovar
 			usage = [to_s, @description]
 			
 			if @default
-				usage << "Default: #{@default.inspect}"
+				usage << "(default: #{@default.inspect})"
+			elsif @required
+				usage << "(required)"
 			end
 			
 			return usage
@@ -51,7 +55,11 @@ module Samovar
 				input.shift(stop_index)
 			elsif input.any?
 				input.shift(input.size)
-			end || default || @default
+			elsif default ||= @default
+				return default
+			elsif @required
+				raise MissingValueError.new(parent, self)
+			end
 		end
 	end
 end
