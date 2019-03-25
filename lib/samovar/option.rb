@@ -18,84 +18,79 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'option'
+require_relative 'flags'
 
 module Samovar
-	class Options
-		def self.parse(*args, **options, &block)
-			options = self.new(*args, **options)
+	class Option
+		def initialize(flags, description, key: nil, default: nil, value: nil, type: nil, &block)
+			@flags = Flags.new(flags)
+			@description = description
 			
-			options.instance_eval(&block) if block_given?
+			if key
+				@key = key
+			else
+				@key = @flags.first.key
+			end
 			
-			return options
+			@default = default
+			
+			# If the value is given, it overrides the user specified input.
+			@value = value
+			@value ||= true if @flags.boolean?
+			
+			@type = type
+			@block = block
 		end
 		
-		def initialize(title = "Options", key: :options)
-			@title = title
-			@ordered = []
-			
-			# We use this flag to option cache to improve parsing performance:
-			@keyed = {}
-			
-			@key = key
-			
-			@defaults = {}
-		end
+		attr :flags
+		attr :description
+		attr :type
 		
-		attr :title
-		attr :ordered
+		attr :default
 		
 		attr :key
-		attr :defaults
 		
-		def each(&block)
-			@ordered.each(&block)
-		end
-		
-		def option(*args, **options, &block)
-			self << Option.new(*args, **options, &block)
-		end
-		
-		def merge!(options)
-			options.each do |option|
-				self << option
+		def coerce_type(result)
+			if @type == Integer
+				Integer(result)
+			elsif @type == Float
+				Float(result)
+			elsif @type == Symbol
+				result.to_sym
+			elsif @type.respond_to? :call
+				@type.call(result)
+			elsif @type.respond_to? :new
+				@type.new(result)
 			end
 		end
 		
-		def << option
-			@ordered << option
-			option.flags.each do |flag|
-				@keyed[flag.prefix] = option
-				
-				flag.alternatives.each do |alternative|
-					@keyed[alternative] = option
-				end
+		def coerce(result)
+			if @type
+				result = coerce_type(result)
 			end
 			
-			if default = option.default
-				@defaults[option.key] = option.default
+			if @block
+				result = @block.call(result)
 			end
+			
+			return result
 		end
 		
 		def parse(input, parent = nil, default = nil)
-			values = (default || @defaults).dup
-			
-			while option = @keyed[input.first]
-				if result = option.parse(input)
-					values[option.key] = result
-				end
-			end
-			
-			return values
+			if result = @flags.parse(input)
+				@value.nil? ? coerce(result) : @value
+			end || default || @default
 		end
 		
 		def to_s
-			@ordered.collect(&:to_s).join(' ')
+			@flags
 		end
 		
-		def usage(rows)
-			@ordered.each do |option|
-				rows << option
+		def to_a
+			unless @default.nil?
+				[@flags, @description, "Default: #{@default}"]
+			else
+				[@flags, @description]
 			end
 		end
 	end
