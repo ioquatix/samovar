@@ -73,7 +73,7 @@ module Samovar::CommandSpec
 		it "should generate documentation" do
 			top = Top[]
 			buffer = StringIO.new
-			top.print_usage('top', output: buffer)
+			top.print_usage(output: buffer)
 			
 			expect(buffer.string).to be_include(Top.description)
 		end
