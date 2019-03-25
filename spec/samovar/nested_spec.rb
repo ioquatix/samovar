@@ -45,7 +45,9 @@ RSpec.describe Samovar::Nested do
 	end
 	
 	it "should use specified default" do
-		expect(subject.parse([], nil, 'inner-b')).to be_kind_of commands['inner-b']
+		command = commands['inner-b'].new
+		
+		expect(subject.parse([], nil, command)).to be command
 	end
 	
 	it "should not use default if input specified" do
