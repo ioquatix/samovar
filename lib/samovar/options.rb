@@ -89,10 +89,6 @@ module Samovar
 		def << option
 			@ordered << option
 			option.flags.each do |flag|
-				if @keyed.include? flag.prefix
-					raise ArgumentError.new("Trying to add option which already exists: #{flag.prefix}")
-				end
-				
 				@keyed[flag.prefix] = option
 				
 				flag.alternatives.each do |alternative|
