@@ -28,6 +28,9 @@ module Samovar
 		end
 		
 		attr :key
+		attr :description
+		attr :marker
+		attr :default
 		
 		def to_s
 			"#{@marker} <#{@key}...>"
@@ -43,10 +46,12 @@ module Samovar
 			return usage
 		end
 		
-		def parse(input, default = @default)
+		def parse(input, parent = nil, default = nil)
 			if offset = input.index(@marker)
 				input.pop(input.size - offset).tap(&:shift)
-			end || default
+			elsif default ||= @default
+				return default
+			end
 		end
 	end
 end

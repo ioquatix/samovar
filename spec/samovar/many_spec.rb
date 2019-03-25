@@ -18,33 +18,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-RSpec.describe Samovar::Options do
-	subject(:options) do
-		described_class.parse do
-			option '-x <value>', "The x factor", default: 2
-			option '-y <value>', "The y factor"
-			
-			option '--symbol <value>', "A symbol", type: Symbol
-		end
+require 'samovar/many'
+
+RSpec.describe Samovar::Many do
+	let(:default) {["1", "2", "3"]}
+	let(:input) {["2", "3", "--else"]}
+	
+	subject{described_class.new(:items, "some items", default: default)}
+	
+	it "has string representation" do
+		expect(subject.to_s).to be == "<items...>"
 	end
 	
-	it "should set defaults" do
-		values = options.parse([], nil, nil)
-		expect(values).to be == {x: 2}
+	it "should have default" do
+		expect(subject.default).to be == default
 	end
 	
-	it "should preserve current values" do
-		values = options.parse([], nil, {x: 1, y: 2, z: 3})
-		expect(values).to be == {x: 1, y: 2, z: 3}
+	it "should use default" do
+		expect(subject.parse([])).to be == default
 	end
 	
-	it "should update specified values" do
-		values = options.parse(['-x', 10], nil, {x: 1, y: 2, z: 3})
-		expect(values).to be == {x: 10, y: 2, z: 3}
+	it "should use specified default" do
+		expect(subject.parse([], nil, ["2"])).to be == ["2"]
 	end
 	
-	it "converts to symbol" do
-		values = options.parse(['--symbol', 'thing'], {})
-		expect(values[:symbol]).to eq :thing
+	it "should not use default if input specified" do
+		expect(subject.parse(input)).to be == ["2", "3"]
+		expect(input).to be == ["--else"]
 	end
 end

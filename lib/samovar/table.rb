@@ -63,14 +63,14 @@ module Samovar
 			@rows.each_value.collect(&:to_s).reject(&:empty?).join(' ')
 		end
 		
-		def parse(input, command)
+		def parse(input, parent)
 			@rows.each do |key, row|
 				next unless row.respond_to?(:parse)
 				
-				current = command.send(key)
+				current = parent.send(key)
 				
-				if result = row.parse(input, current)
-					command.send("#{row.key}=", result)
+				if result = row.parse(input, parent, current)
+					parent.send("#{row.key}=", result)
 				end
 			end
 		end

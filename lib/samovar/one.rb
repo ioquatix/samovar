@@ -28,6 +28,9 @@ module Samovar
 		end
 		
 		attr :key
+		attr :description
+		attr :pattern
+		attr :default
 		
 		def to_s
 			"<#{@key}>"
@@ -43,10 +46,10 @@ module Samovar
 			return usage
 		end
 		
-		def parse(input, default = @default)
+		def parse(input, parent = nil, default = nil)
 			if input.first =~ @pattern
 				input.shift
-			end || default
+			end || default || @default
 		end
 	end
 end

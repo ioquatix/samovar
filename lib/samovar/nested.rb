@@ -20,23 +20,24 @@
 
 module Samovar
 	class Nested
-		def initialize(name, commands, key: :command, default: nil)
-			@name = name
-			@commands = commands
+		def initialize(key, commands, default: nil)
 			@key = key
+			@commands = commands
 			
 			# This is the default name [of a command], not the default command:
 			@default = default
 		end
 		
 		attr :key
+		attr :commands
+		attr :default
 		
 		def to_s
-			@name
+			"<#{@key}>"
 		end
 		
 		def to_a
-			usage = [@name]
+			usage = [self.to_s]
 			
 			if @commands.size == 0
 				usage << "No commands available."
@@ -53,14 +54,14 @@ module Samovar
 			return usage
 		end
 		
-		def parse(input, default)
+		def parse(input, parent = nil, default = nil)
 			if command = @commands[input.first]
 				name = input.shift
 				
 				# puts "Instantiating #{command} with #{input}"
 				command.new(input, name: name)
-			elsif @default
-				default || @commands[@default].new(input, name: @default)
+			elsif default ||= @default
+				@commands[default].new(input, name: default)
 			end
 		end
 		

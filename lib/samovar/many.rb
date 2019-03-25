@@ -28,6 +28,9 @@ module Samovar
 		end
 		
 		attr :key
+		attr :description
+		attr :stop
+		attr :default
 		
 		def to_s
 			"<#{key}...>"
@@ -43,12 +46,12 @@ module Samovar
 			return usage
 		end
 		
-		def parse(input, default = @default)
+		def parse(input, parent = nil, default = nil)
 			if @stop and stop_index = input.index{|item| @stop === item}
 				input.shift(stop_index)
-			else
+			elsif input.any?
 				input.shift(input.size)
-			end || default
+			end || default || @default
 		end
 	end
 end
