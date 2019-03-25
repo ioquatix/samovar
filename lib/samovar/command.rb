@@ -51,7 +51,7 @@ module Samovar
 		end
 		
 		def self.table
-			@table ||= Table.new(superclass == Command ? nil : superclass.table)
+			@table ||= Table.nested(self)
 		end
 		
 		def self.append(row)

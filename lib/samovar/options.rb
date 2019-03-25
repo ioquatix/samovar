@@ -27,7 +27,7 @@ module Samovar
 			
 			options.instance_eval(&block) if block_given?
 			
-			return options
+			return options.freeze
 		end
 		
 		def initialize(title = "Options", key: :options)
@@ -42,14 +42,38 @@ module Samovar
 			@defaults = {}
 		end
 		
+		def initialize_dup(source)
+			super
+			
+			@ordered = @ordered.dup
+			@keyed = @keyed.dup
+			@defaults = @defaults.dup
+		end
+		
 		attr :title
 		attr :ordered
 		
 		attr :key
 		attr :defaults
 		
+		def freeze
+			return self if frozen?
+			
+			@ordered.freeze
+			@keyed.freeze
+			@defaults.freeze
+			
+			@ordered.each(&:freeze)
+			
+			super
+		end
+		
 		def each(&block)
 			@ordered.each(&block)
+		end
+		
+		def empty?
+			@ordered.empty?
 		end
 		
 		def option(*args, **options, &block)
@@ -65,6 +89,10 @@ module Samovar
 		def << option
 			@ordered << option
 			option.flags.each do |flag|
+				if @keyed.include? flag.prefix
+					raise ArgumentError.new("Trying to add option which already exists: #{flag.prefix}")
+				end
+				
 				@keyed[flag.prefix] = option
 				
 				flag.alternatives.each do |alternative|

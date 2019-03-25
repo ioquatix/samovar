@@ -55,23 +55,23 @@ end
 
 module Samovar::NestedSpec
 	class InnerA < Samovar::Command
+		options
 	end
-
-	class InnerB < Samovar::Command
+	
+	class InnerB < InnerA
 		options do
-			option '--help'
+			option '--help', "Do you need it?"
 		end
 	end
-
+	
 	class InnerC < InnerB
 		options do
-			option '--frobulate'
+			option '--frobulate', "Zork is waiting for you."
 		end
 	end
-
+	
 	class Outer < Samovar::Command
 		options do
-			option '--help'
 		end
 
 		nested :command, {
@@ -85,6 +85,8 @@ module Samovar::NestedSpec
 		it "should select default nested command" do
 			outer = Outer[]
 			expect(outer.command).to be_kind_of(InnerB)
+			
+			outer.print_usage
 		end
 
 		it "should select explicitly named nested command" do

@@ -20,9 +20,30 @@
 
 module Samovar
 	class Table
-		def initialize(parent = nil)
+		def self.nested(klass, parent = nil)
+			if klass.superclass.respond_to?(:table)
+				parent = klass.superclass.table
+			end
+			
+			self.new(parent, name: klass.name)
+		end
+		
+		def initialize(parent = nil, name: nil)
 			@parent = parent
+			@name = name
 			@rows = {}
+		end
+		
+		def freeze
+			return self if frozen?
+			
+			@rows.freeze
+			
+			super
+		end
+		
+		def [] key
+			@rows[key]
 		end
 		
 		def each(&block)
@@ -30,10 +51,11 @@ module Samovar
 		end
 		
 		def << row
-			if existing_row = @rows[row.key]
+			if existing_row = @rows[row.key] and existing_row.respond_to?(:merge!)
 				existing_row.merge!(row)
 			else
-				@rows[row.key] = row
+				# In the above case where there is an existing row, but it doensn't support being merged, we overwrite it. This preserves order.
+				@rows[row.key] = row.dup
 			end
 		end
 		
