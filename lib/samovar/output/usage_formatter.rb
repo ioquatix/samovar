@@ -21,6 +21,8 @@
 require 'mapping/model'
 require 'event/terminal'
 
+require_relative '../incomplete_parse'
+
 require_relative 'header'
 
 require_relative 'row'
@@ -30,7 +32,11 @@ module Samovar
 	module Output
 		class UsageFormatter < Mapping::Model
 			def self.print(rows, output)
-				self.new(rows, output).print
+				formatter = self.new(rows, output)
+				
+				yield formatter if block_given?
+				
+				formatter.print
 			end
 			
 			def initialize(rows, output)
@@ -41,6 +47,11 @@ module Samovar
 				@terminal = Event::Terminal.for(@output)
 				@terminal[:header] = @terminal.style(nil, nil, :bright)
 				@terminal[:description] = @terminal.style(:blue)
+				@terminal[:error] = @terminal.style(:red)
+			end
+			
+			map(IncompleteParse) do |error|
+				@terminal.puts "#{error.message} in:", style: :error
 			end
 			
 			map(Header) do |header, rows|

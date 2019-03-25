@@ -27,27 +27,17 @@ require_relative 'split'
 
 require_relative 'output'
 
+require_relative 'incomplete_parse'
+
 module Samovar
-	class IncompleteParse < StandardError
-		def initialize(command, input)
-			@command = command
-			@input = input
-			
-			super "Could not parse token #{input.first.inspect}"
-		end
-		
-		attr :command
-		attr :input
-	end
-	
 	class Command
 		# The top level entry point for parsing ARGV.
 		def self.parse(input = ARGV)
 			self.new(input)
 		rescue IncompleteParse => error
-			$stderr.puts "#{error.message} in:"
-			
-			error.command.print_usage(output: $stderr)
+			error.command.print_usage(output: $stderr) do |formatter|
+				formatter.map(error)
+			end
 			
 			return nil
 		end
@@ -132,12 +122,12 @@ module Samovar
 			end
 		end
 		
-		def print_usage(*args, output: $stderr, formatter: Output::UsageFormatter)
+		def print_usage(output: $stderr, formatter: Output::UsageFormatter, &block)
 			rows = Output::Rows.new
 			
 			self.class.usage(rows, @name)
 			
-			formatter.print(rows, output)
+			formatter.print(rows, output, &block)
 		end
 	end
 end
