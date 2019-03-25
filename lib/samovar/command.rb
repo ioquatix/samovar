@@ -33,7 +33,7 @@ module Samovar
 			@command = command
 			@input = input
 			
-			super "Could not parse token: #{input.first}"
+			super "Could not parse token #{input.first.inspect}"
 		end
 		
 		attr :command
@@ -45,7 +45,7 @@ module Samovar
 		def self.parse(input = ARGV)
 			self.new(input)
 		rescue IncompleteParse => error
-			$stderr.puts error.message
+			$stderr.puts "#{error.message} in:"
 			
 			error.command.print_usage(output: $stderr)
 			
