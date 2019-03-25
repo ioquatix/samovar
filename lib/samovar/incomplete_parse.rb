@@ -27,6 +27,14 @@ module Samovar
 			super "Could not parse token #{input.first.inspect}"
 		end
 		
+		def token
+			@input.first
+		end
+		
+		def help?
+			self.token == "--help"
+		end
+		
 		attr :command
 		attr :input
 	end

@@ -51,7 +51,8 @@ module Samovar
 			end
 			
 			map(IncompleteParse) do |error|
-				@terminal.puts "#{error.message} in:", style: :error
+				# This is a little hack which avoids printing out "--help" if it was part of an incomplete parse. In the future I'd prefer if this was handled explicitly.
+				@terminal.puts("#{error.message} in:", style: :error) unless error.help?
 			end
 			
 			map(Header) do |header, rows|
