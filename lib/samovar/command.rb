@@ -102,11 +102,15 @@ module Samovar
 			end
 		end
 		
-		def initialize(input = nil, name: File.basename($0))
+		def initialize(input = nil, name: File.basename($0), parent: parent)
 			@name = name
+			@parent = parent
 			
 			parse(input) if input
 		end
+		
+		attr :name
+		attr :parent
 		
 		def [](*input)
 			self.dup.tap{|command| command.parse(input)}

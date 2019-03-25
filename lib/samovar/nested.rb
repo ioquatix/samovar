@@ -59,9 +59,9 @@ module Samovar
 				name = input.shift
 				
 				# puts "Instantiating #{command} with #{input}"
-				command.new(input, name: name)
+				command.new(input, name: name, parent: parent)
 			elsif default ||= @default
-				@commands[default].new(input, name: default)
+				@commands[default].new(input, name: default, parent: parent)
 			end
 		end
 		

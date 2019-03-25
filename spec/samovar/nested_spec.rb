@@ -96,6 +96,7 @@ module Samovar::NestedSpec
 			outer = Outer['inner-c', '--help']
 			expect(outer.command).to be_kind_of(InnerC)
 			expect(outer.command.options).to include(help: true)
+			expect(outer.command.parent).to be outer
 		end
 
 		xit "should parse help option at outer level" do
