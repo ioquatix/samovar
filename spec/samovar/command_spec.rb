@@ -46,6 +46,16 @@ module Samovar::CommandSpec
 	end
 
 	RSpec.describe Samovar::Command do
+		it "should invoke call" do
+			expect(Top).to receive(:new).and_wrap_original do |original_method, *args, &block|
+				original_method.call(*args, &block).tap do |instance|
+					expect(instance).to receive(:call)
+				end
+			end
+			
+			Top.call([])
+		end
+		
 		it "should use default value" do
 			top = Top[]
 			expect(top.options[:configuration]).to be == 'TEAPOT_CONFIGURATION'

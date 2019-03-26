@@ -31,8 +31,14 @@ require_relative 'error'
 
 module Samovar
 	class Command
+		def self.call(input = ARGV)
+			if command = self.parse(input)
+				command.call
+			end
+		end
+		
 		# The top level entry point for parsing ARGV.
-		def self.parse(input = ARGV)
+		def self.parse(input)
 			self.new(input)
 		rescue Error => error
 			error.command.print_usage(output: $stderr) do |formatter|
