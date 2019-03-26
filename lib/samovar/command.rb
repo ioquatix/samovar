@@ -122,7 +122,7 @@ module Samovar
 			if input.empty?
 				return self
 			else
-				raise IncompleteParse.new(self, input)
+				raise InvalidInputError.new(self, input)
 			end
 		end
 		
