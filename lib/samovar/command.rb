@@ -82,9 +82,9 @@ module Samovar
 		
 		def self.usage(rows, name)
 			rows.nested(name, self) do |rows|
-				return if @table.nil?
+				return unless table = self.table.merged
 				
-				@table.merged.each do |row|
+				table.each do |row|
 					if row.respond_to?(:usage)
 						row.usage(rows)
 					else
@@ -95,8 +95,8 @@ module Samovar
 		end
 		
 		def self.command_line(name)
-			if @table
-				"#{name} #{@table.merged.usage}"
+			if table = self.table.merged
+				"#{name} #{table.merged.usage}"
 			else
 				name
 			end
