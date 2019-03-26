@@ -42,6 +42,8 @@ Generally speaking, you should create `Command` classes that represent specific 
 require 'samovar'
 
 class List < Samovar::Command
+	self.description = "List the current directory"
+	
 	def call
 		system("ls -lah")
 	end
