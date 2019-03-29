@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 require 'mapping/model'
-require 'event/terminal'
+require 'console/terminal'
 
 require_relative '../error'
 
@@ -44,7 +44,7 @@ module Samovar
 				@output = output
 				@width = 80
 				
-				@terminal = Event::Terminal.for(@output)
+				@terminal = Console::Terminal.for(@output)
 				@terminal[:header] = @terminal.style(nil, nil, :bright)
 				@terminal[:description] = @terminal.style(:blue)
 				@terminal[:error] = @terminal.style(:red)
