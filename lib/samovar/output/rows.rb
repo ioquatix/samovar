@@ -72,8 +72,8 @@ module Samovar
 				@columns ||= Columns.new(@rows.select{|row| row.is_a? Array})
 			end
 			
-			def nested(*args)
-				@rows << Header.new(*args)
+			def nested(*arguments)
+				@rows << Header.new(*arguments)
 				
 				nested_rows = self.class.new(@level + 1)
 				

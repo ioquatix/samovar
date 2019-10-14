@@ -28,7 +28,7 @@ RSpec.describe Samovar::Table do
 	it "can merge options" do
 		parent << Samovar::Options.parse
 		subject << Samovar::Options.parse do
-			option "--help"
+			option "--help", "Print help information."
 		end
 		
 		subject.merged
@@ -36,5 +36,4 @@ RSpec.describe Samovar::Table do
 		
 		expect(parent[:options]).to be_empty
 	end
-	
 end

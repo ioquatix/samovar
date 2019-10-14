@@ -47,8 +47,8 @@ module Samovar::CommandSpec
 
 	RSpec.describe Samovar::Command do
 		it "should invoke call" do
-			expect(Top).to receive(:new).and_wrap_original do |original_method, *args, &block|
-				original_method.call(*args, &block).tap do |instance|
+			expect(Top).to receive(:new).and_wrap_original do |original_method, *arguments, &block|
+				original_method.call(*arguments, &block).tap do |instance|
 					expect(instance).to receive(:call)
 				end
 			end

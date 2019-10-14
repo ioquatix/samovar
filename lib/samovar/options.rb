@@ -22,8 +22,8 @@ require_relative 'option'
 
 module Samovar
 	class Options
-		def self.parse(*args, **options, &block)
-			options = self.new(*args, **options)
+		def self.parse(*arguments, **options, &block)
+			options = self.new(*arguments, **options)
 			
 			options.instance_eval(&block) if block_given?
 			
@@ -76,8 +76,8 @@ module Samovar
 			@ordered.empty?
 		end
 		
-		def option(*args, **options, &block)
-			self << Option.new(*args, **options, &block)
+		def option(*arguments, **options, &block)
+			self << Option.new(*arguments, **options, &block)
 		end
 		
 		def merge!(options)

@@ -66,24 +66,24 @@ module Samovar
 			self.table << row
 		end
 		
-		def self.options(*args, **options, &block)
-			append Options.parse(*args, **options, &block)
+		def self.options(*arguments, **options, &block)
+			append Options.parse(*arguments, **options, &block)
 		end
 		
-		def self.nested(*args, **options)
-			append Nested.new(*args, **options)
+		def self.nested(*arguments, **options)
+			append Nested.new(*arguments, **options)
 		end
 		
-		def self.one(*args, **options)
-			append One.new(*args, **options)
+		def self.one(*arguments, **options)
+			append One.new(*arguments, **options)
 		end
 		
-		def self.many(*args, **options)
-			append Many.new(*args, **options)
+		def self.many(*arguments, **options)
+			append Many.new(*arguments, **options)
 		end
 		
-		def self.split(*args, **options)
-			append Split.new(*args, **options)
+		def self.split(*arguments, **options)
+			append Split.new(*arguments, **options)
 		end
 		
 		def self.usage(rows, name)
