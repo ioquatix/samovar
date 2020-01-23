@@ -20,7 +20,7 @@
 
 module Samovar
 	class Many
-		def initialize(key, description, stop: /^-/, default: nil, required: false)
+		def initialize(key, description = nil, stop: /^-/, default: nil, required: false)
 			@key = key
 			@description = description
 			@stop = stop
