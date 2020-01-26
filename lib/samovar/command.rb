@@ -115,6 +115,10 @@ module Samovar
 			parse(input) if input
 		end
 		
+		def to_s
+			self.class.name
+		end
+		
 		attr :name
 		attr :parent
 		
