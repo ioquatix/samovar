@@ -71,8 +71,6 @@ describe Samovar::Nested do
 	it "should select default nested command" do
 		outer = Outer[]
 		expect(outer.command).to be_a(InnerB)
-		
-		outer.print_usage
 	end
 
 	it "should select explicitly named nested command" do
