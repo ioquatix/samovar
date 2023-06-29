@@ -5,30 +5,30 @@
 
 require 'samovar/split'
 
-RSpec.describe Samovar::Split do
+describe Samovar::Split do
 	let(:default) {["1", "2", "3"]}
 	let(:input) {["2", "--", "3"]}
 	
-	subject{described_class.new(:arguments, "arguments", default: default)}
+	let(:split) {subject.new(:arguments, "arguments", default: default)}
 	
 	it "has string representation" do
-		expect(subject.to_s).to be == "-- <arguments...>"
+		expect(split.to_s).to be == "-- <arguments...>"
 	end
 	
 	it "should have default" do
-		expect(subject.default).to be == default
+		expect(split.default).to be == default
 	end
 	
 	it "should use default" do
-		expect(subject.parse([])).to be == default
+		expect(split.parse([])).to be == default
 	end
 	
 	it "should use specified default" do
-		expect(subject.parse([], nil, ["2"])).to be == ["2"]
+		expect(split.parse([], nil, ["2"])).to be == ["2"]
 	end
 	
 	it "should not use default if input specified" do
-		expect(subject.parse(input)).to be == ["3"]
+		expect(split.parse(input)).to be == ["3"]
 		expect(input).to be == ["2"]
 	end
 end

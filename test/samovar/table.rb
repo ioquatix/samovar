@@ -6,19 +6,19 @@
 require 'samovar/table'
 require 'samovar/options'
 
-RSpec.describe Samovar::Table do
-	let(:parent) {described_class.new}
-	subject{described_class.new(parent)}
+describe Samovar::Table do
+	let(:parent) {subject.new}
+	let(:table) {subject.new(parent)}
 	
 	it "can merge options" do
 		parent << Samovar::Options.parse
-		subject << Samovar::Options.parse do
+		table << Samovar::Options.parse do
 			option "--help", "Print help information."
 		end
 		
-		subject.merged
+		table.merged
 		parent.merged
 		
-		expect(parent[:options]).to be_empty
+		expect(parent[:options]).to be(:empty?)
 	end
 end

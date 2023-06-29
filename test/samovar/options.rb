@@ -3,9 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2017-2023, by Samuel Williams.
 
-RSpec.describe Samovar::Options do
-	subject(:options) do
-		described_class.parse do
+describe Samovar::Options do
+	let(:options) do
+		subject.parse do
 			option '-x <value>', "The x factor", default: 2
 			option '-y <value>', "The y factor"
 			
@@ -30,6 +30,6 @@ RSpec.describe Samovar::Options do
 	
 	it "converts to symbol" do
 		values = options.parse(['--symbol', 'thing'], {})
-		expect(values[:symbol]).to eq :thing
+		expect(values[:symbol]).to be == :thing
 	end
 end
