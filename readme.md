@@ -4,9 +4,7 @@
 
 Samovar is a modern framework for building command-line tools and applications. It provides a declarative class-based DSL for building command-line parsers that include automatic documentation generation. It helps you keep your functionality clean and isolated where possible.
 
-[![Build Status](https://secure.travis-ci.org/ioquatix/samovar.svg)](http://travis-ci.org/ioquatix/samovar)
-[![Code Climate](https://codeclimate.com/github/ioquatix/samovar.svg)](https://codeclimate.com/github/ioquatix/samovar)
-[![Coverage Status](https://coveralls.io/repos/ioquatix/samovar/badge.svg)](https://coveralls.io/r/ioquatix/samovar)
+[![Development Status](https://github.com/ioquatix/samovar/workflows/Test/badge.svg)](https://github.com/ioquatix/samovar/actions?workflow=Test)
 
 ## Motivation
 
@@ -16,29 +14,29 @@ One of the other issues I had with existing frameworks is testability. Most fram
 
 ## Examples
 
-- [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb) is a build system and uses multiple top-level commands.
-- [Utopia](https://github.com/ioquatix/utopia/blob/master/lib/utopia/command.rb) is a web application platform and uses nested commands.
-- [Synco](https://github.com/ioquatix/synco/blob/master/lib/synco/command.rb) is a backup tool and sends commands across the network and has lots of options with default values.
+  - [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb) is a build system and uses multiple top-level commands.
+  - [Utopia](https://github.com/ioquatix/utopia/blob/master/lib/utopia/command.rb) is a web application platform and uses nested commands.
+  - [Synco](https://github.com/ioquatix/synco/blob/master/lib/synco/command.rb) is a backup tool and sends commands across the network and has lots of options with default values.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-	gem 'samovar'
+    gem 'samovar'
 
 And then execute:
 
-	$ bundle
+    $ bundle
 
 Or install it yourself as:
 
-	$ gem install samovar
+    $ gem install samovar
 
 ## Usage
 
 Generally speaking, you should create `Command` classes that represent specific functions in your program. The top level command might look something like this:
 
-```ruby
+``` ruby
 require 'samovar'
 
 class List < Samovar::Command
@@ -72,7 +70,7 @@ Application.call # Defaults to ARGV.
 
 ### Basic Options
 
-```ruby
+``` ruby
 require 'samovar'
 
 class Application < Samovar::Command
@@ -101,7 +99,7 @@ application.options[:things] # ['x', 'y', 'z']
 
 ### Nested Commands
 
-```ruby
+``` ruby
 require 'samovar'
 
 class Create < Samovar::Command
@@ -128,7 +126,7 @@ Application.new(['create']).invoke
 
 ### ARGV Splits
 
-```ruby
+``` ruby
 require 'samovar'
 
 class Application < Samovar::Command
@@ -143,7 +141,7 @@ application.argv # ['apples', 'oranges', 'feijoas']
 
 ### Parsing Tokens
 
-```ruby
+``` ruby
 require 'samovar'
 
 class Application < Samovar::Command
@@ -162,13 +160,13 @@ application.cakes # ['chocolate cake', 'fruit cake']
 
 Given a custom `Samovar::Command` subclass, you can instantiate it with options:
 
-```ruby
+``` ruby
 application = Application['--root', path]
 ```
 
 You can also duplicate an existing command instance with additions/changes:
 
-```ruby
+``` ruby
 concurrent_application = application['--threads', 12]
 ```
 
@@ -176,64 +174,50 @@ These forms can be useful when invoking one command from another, or in unit tes
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+We welcome contributions to this project.
 
-### Future Work
+1.  Fork it.
+2.  Create your feature branch (`git checkout -b my-new-feature`).
+3.  Commit your changes (`git commit -am 'Add some feature'`).
+4.  Push to the branch (`git push origin my-new-feature`).
+5.  Create new Pull Request.
 
-#### Multi-value Options
+### Developer Certificate of Origin
+
+This project uses the [Developer Certificate of Origin](https://developercertificate.org/). All contributors to this project must agree to this document to have their contributions accepted.
+
+### Contributor Covenant
+
+This project is governed by [Contributor Covenant](https://www.contributor-covenant.org/). All contributors and participants agree to abide by its terms.
+
+## Future Work
+
+### Multi-value Options
 
 Right now, options can take a single argument, e.g. `--count <int>`. Ideally, we support a specific sub-parser defined by the option, e.g. `--count <int...>` or `--tag <section> <tags...>`. These would map to specific parsers using `Samovar::One` and `Samovar::Many` internally.
 
-#### Global Options
+### Global Options
 
 Options can only be parsed at the place they are explicitly mentioned, e.g. a command with sub-commands won't parse an option added to the end of the command:
 
-```ruby
+``` ruby
 command list --help
 ```
 
 One might reasonably expect this to parse but it isn't so easy to generalize this:
 
-```ruby
+``` ruby
 command list -- --help
 ```
 
 In this case, do we show help? Some effort is required to disambiguate this. Initially, it makes sense to keep things as simple as possible. But, it might make sense for some options to be declared in a global scope, which are extracted before parsing begins. I'm not sure if this is really a good idea. It might just be better to give good error output in this case (you specified an option but it was in the wrong place).
 
-#### Shell Auto-completion
+### Shell Auto-completion
 
 Because of the structure of the Samovar command parser, it should be possible to generate a list of all possible tokens at each point. Therefore, semantically correct tab completion should be possible.
 
 As a secondary to this, it would be nice if `Samovar::One` and `Samovar::Many` could take a list of potential tokens so that auto-completion could give meaningful suggestions, and possibly improved validation.
 
-#### Short/Long Help
+### Short/Long Help
 
 It might be interesting to explore whether it's possible to have `-h` and `--help` do different things. This could include command specific help output, more detailed help output (similar to a man page), and other useful help related tasks.
-
-## License
-
-Released under the MIT license.
-
-Copyright, 2016, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
