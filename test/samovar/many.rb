@@ -5,30 +5,30 @@
 
 require 'samovar/many'
 
-RSpec.describe Samovar::Many do
+describe Samovar::Many do
 	let(:default) {["1", "2", "3"]}
 	let(:input) {["2", "3", "--else"]}
 	
-	subject{described_class.new(:items, "some items", default: default)}
+	let(:many) {subject.new(:items, "some items", default: default)}
 	
 	it "has string representation" do
-		expect(subject.to_s).to be == "<items...>"
+		expect(many.to_s).to be == "<items...>"
 	end
 	
 	it "should have default" do
-		expect(subject.default).to be == default
+		expect(many.default).to be == default
 	end
 	
 	it "should use default" do
-		expect(subject.parse([])).to be == default
+		expect(many.parse([])).to be == default
 	end
 	
 	it "should use specified default" do
-		expect(subject.parse([], nil, ["2"])).to be == ["2"]
+		expect(many.parse([], nil, ["2"])).to be == ["2"]
 	end
 	
 	it "should not use default if input specified" do
-		expect(subject.parse(input)).to be == ["2", "3"]
+		expect(many.parse(input)).to be == ["2", "3"]
 		expect(input).to be == ["--else"]
 	end
 end
