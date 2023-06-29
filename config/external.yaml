@@ -1,0 +1,3 @@
+bake:
+  url: https://github.com/ioquatix/bake
+  command: bundle exec bake test
