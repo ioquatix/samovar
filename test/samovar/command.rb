@@ -71,4 +71,14 @@ describe Samovar::Command do
 		
 		expect(buffer.string).to be(:include?, Top.description)
 	end
+	
+	with "specific output" do
+		it "can print usage to specified outputn buffer" do
+			buffer = StringIO.new
+			top = Top[output: buffer]
+			top.print_usage
+			
+			expect(buffer.string).to be(:include?, Top.description)
+		end
+	end
 end

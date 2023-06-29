@@ -93,11 +93,18 @@ module Samovar
 			end
 		end
 		
-		def initialize(input = nil, name: File.basename($0), parent: nil)
+		def initialize(input = nil, name: File.basename($0), parent: nil, output: nil)
 			@name = name
 			@parent = parent
+			@output = output
 			
 			parse(input) if input
+		end
+		
+		attr :output
+		
+		def output
+			@output || $stdout
 		end
 		
 		def to_s
@@ -121,7 +128,7 @@ module Samovar
 			end
 		end
 		
-		def print_usage(output: $stderr, formatter: Output::UsageFormatter, &block)
+		def print_usage(output: self.output, formatter: Output::UsageFormatter, &block)
 			rows = Output::Rows.new
 			
 			self.class.usage(rows, @name)
