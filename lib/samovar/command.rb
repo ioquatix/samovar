@@ -46,6 +46,11 @@ module Samovar
 		end
 		
 		def self.append(row)
+			if method_defined?(row.key, false)
+				warning "Method for key #{row.key} is already defined!", caller
+				# raise ArgumentError, "Method for key #{row.key} is already defined!"
+			end
+			
 			attr_accessor(row.key) if row.respond_to?(:key)
 			
 			self.table << row
