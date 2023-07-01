@@ -65,6 +65,10 @@ module Samovar
 			self << Option.new(*arguments, **options, &block)
 		end
 		
+		def switch(*arguments, **options, &block)
+			self << Switch.new(*arguments, **options, &block)
+		end
+		
 		def merge!(options)
 			options.each do |option|
 				self << option
