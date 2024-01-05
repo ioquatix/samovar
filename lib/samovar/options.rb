@@ -91,7 +91,7 @@ module Samovar
 			
 			while option = @keyed[input.first]
 				if result = option.parse(input)
-					values[option.key] = result
+					values[option.key] = option.join_results(values[option.key], result)
 				end
 			end
 			

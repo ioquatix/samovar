@@ -81,6 +81,7 @@ class Application < Samovar::Command
 		option '--things <a,b,c>', "A list of things" do |value|
 			value.split(/\s*,\s*/)
 		end
+		option '--multi <value>', "Pass this flag multiple times", multi: true
 	end
 end
 
@@ -95,6 +96,9 @@ application.options[:flag] # true
 
 application = Application.new(['--things', 'x,y,z'])
 application.options[:things] # ['x', 'y', 'z']
+
+application = Applicaiton.new(['--multi', 'v1', '--multi', 'v2'])
+application.options[:multi] # ['v1', 'v2']
 ```
 
 ### Nested Commands

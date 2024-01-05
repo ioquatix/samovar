@@ -7,7 +7,7 @@ require_relative 'flags'
 
 module Samovar
 	class Option
-		def initialize(flags, description, key: nil, default: nil, value: nil, type: nil, required: false, &block)
+		def initialize(flags, description, key: nil, default: nil, value: nil, type: nil, required: false, multi: false, &block)
 			@flags = Flags.new(flags)
 			@description = description
 			
@@ -26,6 +26,7 @@ module Samovar
 			@type = type
 			@required = required
 			@block = block
+			@multi = multi
 		end
 		
 		attr :flags
@@ -38,6 +39,7 @@ module Samovar
 		attr :type
 		attr :required
 		attr :block
+		attr :multi
 		
 		def coerce_type(result)
 			if @type == Integer
@@ -60,6 +62,10 @@ module Samovar
 			
 			if @block
 				result = @block.call(result)
+			end
+			
+			if multi
+				result = Array(result)
 			end
 			
 			return result
@@ -87,6 +93,13 @@ module Samovar
 			else
 				[@flags, @description]
 			end
+		end
+		
+		def join_results(existing_result, new_result)
+			return new_result if existing_result.nil?
+			return new_result unless multi
+			
+			existing_result + new_result
 		end
 	end
 end
