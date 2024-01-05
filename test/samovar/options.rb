@@ -10,6 +10,8 @@ describe Samovar::Options do
 			option '-y <value>', "The y factor"
 			
 			option '--symbol <value>', "A symbol", type: Symbol
+			option '--multi <value>', "You can pass multiple values of this flag", multi: true
+			option '--multinum <value>', "Multiple numbers", type: Integer, multi: true
 		end
 	end
 	
@@ -31,5 +33,20 @@ describe Samovar::Options do
 	it "converts to symbol" do
 		values = options.parse(['--symbol', 'thing'], {})
 		expect(values[:symbol]).to be == :thing
+	end
+	
+	it 'picks the last value of an argument by default' do
+		values = options.parse(['--symbol', 'thing1', '--symbol', 'thing2'], {})
+		expect(values[:symbol]).to be == :thing2
+	end
+	
+	it 'appends arguments when multi is set' do
+		values = options.parse(['--multi', 'thing1', '--multi', 'thing2'], {})
+		expect(values[:multi]).to be == ['thing1', 'thing2']
+	end
+	
+	it 'can handle type coersions with multi' do
+		values = options.parse(['--multinum', '1', '--multinum', '8'])
+		expect(values[:multinum]).to be == [1, 8]
 	end
 end
