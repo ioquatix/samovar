@@ -20,6 +20,7 @@ class Top < Samovar::Command
 		option '-c/--configuration <name>', "Specify a specific build configuration.", default: 'TEAPOT_CONFIGURATION'
 		option '-i/--in/--root <path>', "Work in the given root directory."
 		option '--verbose | --quiet', "Verbosity of output for debugging.", key: :logging
+		option '--[no]-color', "Enable or disable color output.", default: true
 		option '-h/--help', "Print out help information."
 		option '-v/--version', "Print out the application version."
 	end
@@ -79,6 +80,23 @@ describe Samovar::Command do
 			top.print_usage
 			
 			expect(buffer.string).to be(:include?, Top.description)
+		end
+	end
+	
+	with '--[no]-color flag' do
+		it "should use default color output if unspecified" do
+			top = Top[]
+			expect(top.options[:color]).to be == true
+		end
+		
+		it "should enable color output" do
+			top = Top['--color']
+			expect(top.options[:color]).to be == true
+		end
+		
+		it "should disable color output" do
+			top = Top['--no-color']
+			expect(top.options[:color]).to be == false
 		end
 	end
 end
