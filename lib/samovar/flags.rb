@@ -8,7 +8,7 @@ module Samovar
 		def initialize(text)
 			@text = text
 			
-			@ordered = text.split(/\s+\|\s+/).map{|part| Flag.new(part)}
+			@ordered = text.split(/\s+\|\s+/).map{|part| Flag.parse(part)}
 		end
 		
 		def each(&block)
@@ -21,7 +21,7 @@ module Samovar
 		
 		# Whether or not this flag should have a true/false value if not specified otherwise.
 		def boolean?
-			@ordered.count == 1 and @ordered.first.value.nil?
+			@ordered.count == 1 and @ordered.first.boolean?
 		end
 		
 		def count
@@ -29,12 +29,13 @@ module Samovar
 		end
 		
 		def to_s
-			'[' + @ordered.join(' | ') + ']'
+			"[#{@ordered.join(' | ')}]"
 		end
 		
 		def parse(input)
 			@ordered.each do |flag|
-				if result = flag.parse(input)
+				result = flag.parse(input)
+				if result != nil
 					return result
 				end
 			end
@@ -44,44 +45,92 @@ module Samovar
 	end
 	
 	class Flag
-		def initialize(text)
-			@text = text
-			
+		def self.parse(text)
 			if text =~ /(.*?)\s(\<.*?\>)/
-				@prefix = $1
-				@value = $2
+				ValueFlag.new(text, $1, $2)
+			elsif text =~ /--\[no\]-(.*?)$/
+				BooleanFlag.new(text, "--#{$1}")
 			else
-				@prefix = @text
-				@value = nil
+				ValueFlag.new(text, text, nil)
 			end
-			
-			*@alternatives, @prefix = @prefix.split('/')
+		end
+		
+		def initialize(text, prefix, alternatives = nil)
+			@text = text
+			@prefix = prefix
+			@alternatives = alternatives
 		end
 		
 		attr :text
 		attr :prefix
 		attr :alternatives
-		attr :value
 		
 		def to_s
 			@text
-		end
-		
-		def prefix?(token)
-			@prefix == token or @alternatives.include?(token)
 		end
 		
 		def key
 			@key ||= @prefix.sub(/^-*/, '').gsub('-', '_').to_sym
 		end
 		
+		def boolean?
+			false
+		end
+	end
+	
+	class ValueFlag < Flag
+		def initialize(text, prefix, value)
+			super(text, prefix)
+			
+			@value = value
+			
+			*@alternatives, @prefix = @prefix.split('/')
+		end
+		
+		attr :alternatives
+		attr :value
+		
+		def boolean?
+			@value.nil?
+		end
+		
+		def prefix?(token)
+			@prefix == token or @alternatives.include?(token)
+		end
+		
 		def parse(input)
 			if prefix?(input.first)
 				if @value
-					input.shift(2).last
+					return input.shift(2).last
 				else
-					input.shift; key
+					input.shift
+					return key
 				end
+			end
+		end
+	end
+	
+	class BooleanFlag < Flag
+		def initialize(text, prefix, value = nil)
+			super(text, prefix)
+			
+			@value = value
+			
+			@negated = @prefix.sub(/^--/, '--no-')
+			@alternatives = [@negated]
+		end
+		
+		def prefix?(token)
+			@prefix == token or @negated == token
+		end
+		
+		def parse(input)
+			if input.first == @prefix
+				input.shift
+				return true
+			elsif input.first == @negated
+				input.shift
+				return false
 			end
 		end
 	end

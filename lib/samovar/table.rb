@@ -76,8 +76,9 @@ module Samovar
 				
 				current = parent.send(key)
 				
-				if result = row.parse(input, parent, current)
-					parent.send("#{row.key}=", result)
+				result = row.parse(input, parent, current)
+				if result != nil
+					parent.public_send("#{row.key}=", result)
 				end
 			end
 		end

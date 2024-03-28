@@ -66,7 +66,8 @@ module Samovar
 		end
 		
 		def parse(input, parent = nil, default = nil)
-			if result = @flags.parse(input)
+			result = @flags.parse(input)
+			if result != nil
 				@value.nil? ? coerce(result) : @value
 			elsif default ||= @default
 				return default

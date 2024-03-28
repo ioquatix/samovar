@@ -90,7 +90,9 @@ module Samovar
 			values = (default || @defaults).dup
 			
 			while option = @keyed[input.first]
-				if result = option.parse(input)
+				prefix = input.first
+				result = option.parse(input)
+				if result != nil
 					values[option.key] = result
 				end
 			end
