@@ -19,12 +19,10 @@ Gem::Specification.new do |spec|
 		"funding_uri" => "https://github.com/sponsors/ioquatix/",
 	}
 	
-	spec.files = Dir.glob(['{lib,spec}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
+	spec.files = Dir.glob(['{lib}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
+	
+	spec.required_ruby_version = ">= 3.0"
 	
 	spec.add_dependency "console", "~> 1.0"
 	spec.add_dependency "mapping", "~> 1.0"
-	
-	spec.add_development_dependency "bundler"
-	spec.add_development_dependency "covered"
-	spec.add_development_dependency "sus"
 end
