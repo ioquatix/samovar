@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2023, by Samuel Williams.
+# Copyright, 2019-2025, by Samuel Williams.
 
 module Samovar
 	class Error < StandardError
 	end
-		
+	
 	class InvalidInputError < Error
 		def initialize(command, input)
 			@command = command

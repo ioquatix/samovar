@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2023, by Samuel Williams.
+# Copyright, 2019-2025, by Samuel Williams.
 
-require 'mapping/model'
-require 'console/terminal'
+require "mapping/model"
+require "console/terminal"
 
-require_relative '../error'
+require_relative "../error"
 
-require_relative 'header'
+require_relative "header"
 
-require_relative 'row'
-require_relative 'rows'
+require_relative "row"
+require_relative "rows"
 
 module Samovar
 	module Output

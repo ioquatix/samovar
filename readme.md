@@ -37,7 +37,7 @@ Or install it yourself as:
 Generally speaking, you should create `Command` classes that represent specific functions in your program. The top level command might look something like this:
 
 ``` ruby
-require 'samovar'
+require "samovar"
 
 class List < Samovar::Command
 	self.description = "List the current directory"
@@ -49,12 +49,12 @@ end
 
 class Application < Samovar::Command
 	options do
-		option '--help', "Do you need help?"
+		option "--help", "Do you need help?"
 	end
 	
 	nested :command, {
-		'list' => List
-	}, default: 'list'
+		"list" => List
+	}, default: "list"
 	
 	def call
 		if @options[:help]
@@ -71,36 +71,36 @@ Application.call # Defaults to ARGV.
 ### Basic Options
 
 ``` ruby
-require 'samovar'
+require "samovar"
 
 class Application < Samovar::Command
 	options do
-		option '-f/--frobulate <text>', "Frobulate the text"
-		option '-x | -y', "Specify either x or y axis.", key: :axis
-		option '-F/--yeah/--flag', "A boolean flag with several forms."
-		option '--things <a,b,c>', "A list of things" do |value|
+		option "-f/--frobulate <text>", "Frobulate the text"
+		option "-x | -y", "Specify either x or y axis.", key: :axis
+		option "-F/--yeah/--flag", "A boolean flag with several forms."
+		option "--things <a,b,c>", "A list of things" do |value|
 			value.split(/\s*,\s*/)
 		end
 	end
 end
 
-application = Application.new(['-f', 'Algebraic!'])
+application = Application.new(["-f", "Algebraic!"])
 application.options[:frobulate] # 'Algebraic!'
 
-application = Application.new(['-x', '-y'])
+application = Application.new(["-x", "-y"])
 application.options[:axis] # :y
 
-application = Application.new(['-F'])
+application = Application.new(["-F"])
 application.options[:flag] # true
 
-application = Application.new(['--things', 'x,y,z'])
+application = Application.new(["--things", "x,y,z"])
 application.options[:things] # ['x', 'y', 'z']
 ```
 
 ### Nested Commands
 
 ``` ruby
-require 'samovar'
+require "samovar"
 
 class Create < Samovar::Command
 	def invoke(parent)
@@ -109,8 +109,8 @@ class Create < Samovar::Command
 end
 
 class Application < Samovar::Command
-	nested '<command>',
-		'create' => Create
+	nested "<command>",
+		"create" => Create
 	
 	def invoke(program_name: File.basename($0))
 		if @command
@@ -121,20 +121,20 @@ class Application < Samovar::Command
 	end
 end
 
-Application.new(['create']).invoke
+Application.new(["create"]).invoke
 ```
 
 ### ARGV Splits
 
 ``` ruby
-require 'samovar'
+require "samovar"
 
 class Application < Samovar::Command
 	many :packages
 	split :argv
 end
 
-application = Application.new(['foo', 'bar', 'baz', '--', 'apples', 'oranges', 'feijoas'])
+application = Application.new(["foo", "bar", "baz", "--", "apples", "oranges", "feijoas"])
 application.packages # ['foo', 'bar', 'baz']
 application.argv # ['apples', 'oranges', 'feijoas']
 ```
@@ -142,7 +142,7 @@ application.argv # ['apples', 'oranges', 'feijoas']
 ### Parsing Tokens
 
 ``` ruby
-require 'samovar'
+require "samovar"
 
 class Application < Samovar::Command
 	self.description = "Mix together your favorite things."
@@ -151,7 +151,7 @@ class Application < Samovar::Command
 	many :cakes, "Any cakes you like"
 end
 
-application = Application.new(['apple', 'chocolate cake', 'fruit cake'])
+application = Application.new(["apple", "chocolate cake", "fruit cake"])
 application.fruit # 'apple'
 application.cakes # ['chocolate cake', 'fruit cake']
 ```
@@ -161,13 +161,13 @@ application.cakes # ['chocolate cake', 'fruit cake']
 Given a custom `Samovar::Command` subclass, you can instantiate it with options:
 
 ``` ruby
-application = Application['--root', path]
+application = Application["--root", path]
 ```
 
 You can also duplicate an existing command instance with additions/changes:
 
 ``` ruby
-concurrent_application = application['--threads', 12]
+concurrent_application = application["--threads", 12]
 ```
 
 These forms can be useful when invoking one command from another, or in unit tests.
@@ -184,11 +184,11 @@ We welcome contributions to this project.
 
 ### Developer Certificate of Origin
 
-This project uses the [Developer Certificate of Origin](https://developercertificate.org/). All contributors to this project must agree to this document to have their contributions accepted.
+In order to protect users of this project, we require all contributors to comply with the [Developer Certificate of Origin](https://developercertificate.org/). This ensures that all contributions are properly licensed and attributed.
 
-### Contributor Covenant
+### Community Guidelines
 
-This project is governed by the [Contributor Covenant](https://www.contributor-covenant.org/). All contributors and participants agree to abide by its terms.
+This project is best served by a collaborative and respectful environment. Treat each other professionally, respect differing viewpoints, and engage constructively. Harassment, discrimination, or harmful behavior is not tolerated. Communicate clearly, listen actively, and support one another. If any issues arise, please inform the project maintainers.
 
 ## Future Work
 

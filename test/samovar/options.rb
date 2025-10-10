@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2017-2023, by Samuel Williams.
+# Copyright, 2017-2025, by Samuel Williams.
 
 describe Samovar::Options do
 	let(:options) do
 		subject.parse do
-			option '-x <value>', "The x factor", default: 2
-			option '-y <value>', "The y factor"
+			option "-x <value>", "The x factor", default: 2
+			option "-y <value>", "The y factor"
 			
-			option '--symbol <value>', "A symbol", type: Symbol
+			option "--symbol <value>", "A symbol", type: Symbol
 		end
 	end
 	
@@ -24,12 +24,12 @@ describe Samovar::Options do
 	end
 	
 	it "should update specified values" do
-		values = options.parse(['-x', 10], nil, {x: 1, y: 2, z: 3})
+		values = options.parse(["-x", 10], nil, {x: 1, y: 2, z: 3})
 		expect(values).to be == {x: 10, y: 2, z: 3}
 	end
 	
 	it "converts to symbol" do
-		values = options.parse(['--symbol', 'thing'], {})
+		values = options.parse(["--symbol", "thing"], {})
 		expect(values[:symbol]).to be == :thing
 	end
 end

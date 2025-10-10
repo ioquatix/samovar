@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2016-2023, by Samuel Williams.
+# Copyright, 2016-2025, by Samuel Williams.
 
-require_relative 'table'
-require_relative 'options'
-require_relative 'nested'
-require_relative 'one'
-require_relative 'many'
-require_relative 'split'
+require_relative "table"
+require_relative "options"
+require_relative "nested"
+require_relative "one"
+require_relative "many"
+require_relative "split"
 
-require_relative 'output'
+require_relative "output"
 
-require_relative 'error'
+require_relative "error"
 
 module Samovar
 	class Command

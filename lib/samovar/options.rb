@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2016-2024, by Samuel Williams.
+# Copyright, 2016-2025, by Samuel Williams.
 
-require_relative 'option'
+require_relative "option"
 
 module Samovar
 	class Options
@@ -101,7 +101,7 @@ module Samovar
 		end
 		
 		def to_s
-			@ordered.collect(&:to_s).join(' ')
+			@ordered.collect(&:to_s).join(" ")
 		end
 		
 		def usage(rows)

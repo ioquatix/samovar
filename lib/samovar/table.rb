@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2016-2024, by Samuel Williams.
+# Copyright, 2016-2025, by Samuel Williams.
 
 module Samovar
 	class Table
@@ -67,7 +67,7 @@ module Samovar
 		end
 		
 		def usage
-			@rows.each_value.collect(&:to_s).reject(&:empty?).join(' ')
+			@rows.each_value.collect(&:to_s).reject(&:empty?).join(" ")
 		end
 		
 		def parse(input, parent)

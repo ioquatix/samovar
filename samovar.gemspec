@@ -10,18 +10,20 @@ Gem::Specification.new do |spec|
 	spec.authors = ["Samuel Williams", "Gabriel Mazetto"]
 	spec.license = "MIT"
 	
-	spec.cert_chain  = ['release.cert']
-	spec.signing_key = File.expand_path('~/.gem/release.pem')
+	spec.cert_chain  = ["release.cert"]
+	spec.signing_key = File.expand_path("~/.gem/release.pem")
 	
 	spec.homepage = "https://github.com/ioquatix/samovar"
 	
 	spec.metadata = {
+		"documentation_uri" => "https://ioquatix.github.io/samovar/",
 		"funding_uri" => "https://github.com/sponsors/ioquatix/",
+		"source_code_uri" => "https://github.com/ioquatix/samovar.git",
 	}
 	
-	spec.files = Dir.glob(['{lib}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
+	spec.files = Dir.glob(["{lib}/**/*", "*.md"], File::FNM_DOTMATCH, base: __dir__)
 	
-	spec.required_ruby_version = ">= 3.0"
+	spec.required_ruby_version = ">= 3.2"
 	
 	spec.add_dependency "console", "~> 1.0"
 	spec.add_dependency "mapping", "~> 1.0"

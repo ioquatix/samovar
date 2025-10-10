@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2016-2023, by Samuel Williams.
+# Copyright, 2016-2025, by Samuel Williams.
 
 module Samovar
 	class Split
-		def initialize(key, description, marker: '--', default: nil, required: false)
+		def initialize(key, description, marker: "--", default: nil, required: false)
 			@key = key
 			@description = description
 			@marker = marker

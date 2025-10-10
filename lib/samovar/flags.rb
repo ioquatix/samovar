@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2016-2024, by Samuel Williams.
+# Copyright, 2016-2025, by Samuel Williams.
 
 module Samovar
 	class Flags
@@ -70,7 +70,7 @@ module Samovar
 		end
 		
 		def key
-			@key ||= @prefix.sub(/^-*/, '').gsub('-', '_').to_sym
+			@key ||= @prefix.sub(/^-*/, "").gsub("-", "_").to_sym
 		end
 		
 		def boolean?
@@ -84,7 +84,7 @@ module Samovar
 			
 			@value = value
 			
-			*@alternatives, @prefix = @prefix.split('/')
+			*@alternatives, @prefix = @prefix.split("/")
 		end
 		
 		attr :alternatives
@@ -116,7 +116,7 @@ module Samovar
 			
 			@value = value
 			
-			@negated = @prefix.sub(/^--/, '--no-')
+			@negated = @prefix.sub(/^--/, "--no-")
 			@alternatives = [@negated]
 		end
 		

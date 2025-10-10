@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2023, by Samuel Williams.
+# Copyright, 2019-2025, by Samuel Williams.
 
 module Samovar
 	module Output
@@ -16,7 +16,7 @@ module Samovar
 			def align(columns)
 				self.collect.with_index do |value, index|
 					value.ljust(columns.widths[index])
-				end.join('  ')
+				end.join("  ")
 			end
 		end
 	end
