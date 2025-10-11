@@ -173,3 +173,43 @@ concurrent_application = application["--threads", 12]
 ~~~
 
 These forms can be useful when invoking one command from another, or in unit tests.
+
+## Error Handling
+
+Samovar provides two entry points with different error handling behaviors:
+
+### `call()` - High-Level Entry Point
+
+Use `call()` for CLI applications. It handles parsing errors gracefully by printing usage information:
+
+~~~ ruby
+# Automatically handles errors and prints usage
+Application.call(ARGV)
+~~~
+
+If parsing fails or the command raises a {ruby Samovar::Error}, it will:
+- Print the usage information with the error highlighted
+- Return `nil` instead of raising an exception
+
+### `parse()` - Low-Level Parsing
+
+Use `parse()` when you need explicit error handling or for testing:
+
+~~~ ruby
+begin
+  app = Application.parse(["--unknown-flag"])
+rescue Samovar::InvalidInputError => error
+  # Handle the error yourself
+  puts "Invalid input: #{error.message}"
+end
+~~~
+
+The `parse()` method raises exceptions on parsing errors, giving you full control over error handling.
+
+### Error Types
+
+Samovar defines several error types:
+
+- {ruby Samovar::InvalidInputError}: Raised when unexpected command-line input is encountered
+- {ruby Samovar::MissingValueError}: Raised when required arguments or options are missing
+
