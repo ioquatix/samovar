@@ -31,4 +31,27 @@ describe Samovar::Split do
 		expect(split.parse(input)).to be == ["3"]
 		expect(input).to be == ["2"]
 	end
+	
+	with "required field" do
+		let(:required_split) {subject.new(:arguments, "arguments", required: true)}
+		
+		it "raises error when required field is missing" do
+			expect do
+				required_split.parse([])
+			end.to raise_exception(Samovar::MissingValueError)
+		end
+		
+		it "includes required in usage" do
+			usage = required_split.to_a
+			expect(usage.join(" ")).to be(:include?, "required")
+		end
+	end
+	
+	with "default value" do
+		it "includes default in usage" do
+			usage = split.to_a
+			expect(usage.join(" ")).to be(:include?, "default")
+		end
+	end
 end
+

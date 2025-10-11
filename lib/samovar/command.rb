@@ -15,36 +15,63 @@ require_relative "output"
 require_relative "error"
 
 module Samovar
+	# Represents a command in the command-line interface.
+	# 
+	# Commands are the main building blocks of Samovar applications. Each command is a class that can parse command-line arguments, options, and sub-commands.
 	class Command
+		# Parse and execute the command with the given input.
+		# 
+		# @parameter input [Array(String)] The command-line arguments to parse.
 		def self.call(input = ARGV)
 			if command = self.parse(input)
 				command.call
 			end
 		end
 		
-		# The top level entry point for parsing ARGV.
-		def self.parse(input)
+		# Parse the command-line input and create a command instance.
+		# 
+		# This is the top level entry point for parsing ARGV.
+		# 
+		# @parameter input [Array(String)] The command-line arguments to parse.
+		# @returns [Command | Nil] The parsed command instance, or nil if parsing failed.
+		def self.parse(input, output: $stderr)
 			self.new(input)
 		rescue Error => error
-			error.command.print_usage(output: $stderr) do |formatter|
+			error.command.print_usage(output: output) do |formatter|
 				formatter.map(error)
 			end
 			
 			return nil
 		end
 		
+		# Create a new command instance with the given arguments.
+		# 
+		# This is a convenience method for creating command instances with explicit arguments.
+		# 
+		# @parameter input [Array(String)] The command-line arguments to parse.
+		# @parameter options [Hash] Additional options to pass to the command.
+		# @returns [Command] The command instance.
 		def self.[](*input, **options)
 			self.new(input, **options)
 		end
 		
 		class << self
+			# A description of the command's purpose.
+			# 
+			# @attribute [String]
 			attr_accessor :description
 		end
 		
+		# The table of rows for parsing command-line arguments.
+		# 
+		# @returns [Table] The table of parsing rows.
 		def self.table
 			@table ||= Table.nested(self)
 		end
 		
+		# Append a row to the parsing table.
+		# 
+		# @parameter row The row to append to the table.
 		def self.append(row)
 			if method_defined?(row.key, false)
 				warning "Method for key #{row.key} is already defined!", caller
@@ -56,26 +83,51 @@ module Samovar
 			self.table << row
 		end
 		
+		# Define command-line options for this command.
+		# 
+		# @parameter arguments [Array] The arguments for the options.
+		# @parameter options [Hash] Additional options.
+		# @yields {|...| ...} A block that defines the options using {Options}.
 		def self.options(*arguments, **options, &block)
 			append Options.parse(*arguments, **options, &block)
 		end
 		
+		# Define a nested sub-command.
+		# 
+		# @parameter arguments [Array] The arguments for the nested command.
+		# @parameter options [Hash] A hash mapping command names to command classes.
 		def self.nested(*arguments, **options)
 			append Nested.new(*arguments, **options)
 		end
 		
+		# Define a single required positional argument.
+		# 
+		# @parameter arguments [Array] The arguments for the positional parameter.
+		# @parameter options [Hash] Additional options.
 		def self.one(*arguments, **options)
 			append One.new(*arguments, **options)
 		end
 		
+		# Define multiple positional arguments.
+		# 
+		# @parameter arguments [Array] The arguments for the positional parameters.
+		# @parameter options [Hash] Additional options.
 		def self.many(*arguments, **options)
 			append Many.new(*arguments, **options)
 		end
 		
+		# Define a split point in the argument list (typically `--`).
+		# 
+		# @parameter arguments [Array] The arguments for the split.
+		# @parameter options [Hash] Additional options.
 		def self.split(*arguments, **options)
 			append Split.new(*arguments, **options)
 		end
 		
+		# Generate usage information for this command.
+		# 
+		# @parameter rows [Output::Rows] The rows to append usage information to.
+		# @parameter name [String] The name of the command.
 		def self.usage(rows, name)
 			rows.nested(name, self) do |rows|
 				return unless table = self.table.merged
@@ -90,6 +142,10 @@ module Samovar
 			end
 		end
 		
+		# Generate a command-line usage string.
+		# 
+		# @parameter name [String] The name of the command.
+		# @returns [String] The command-line usage string.
 		def self.command_line(name)
 			if table = self.table.merged
 				"#{name} #{table.merged.usage}"
@@ -98,6 +154,12 @@ module Samovar
 			end
 		end
 		
+		# Initialize a new command instance.
+		# 
+		# @parameter input [Array(String) | Nil] The command-line arguments to parse.
+		# @parameter name [String] The name of the command (defaults to the script name).
+		# @parameter parent [Command | Nil] The parent command, if this is a nested command.
+		# @parameter output [IO | Nil] The output stream for usage information.
 		def initialize(input = nil, name: File.basename($0), parent: nil, output: nil)
 			@name = name
 			@parent = parent
@@ -106,23 +168,47 @@ module Samovar
 			parse(input) if input
 		end
 		
+		# The output stream for usage information.
+		# 
+		# @attribute [IO]
 		attr :output
 		
+		# The output stream for usage information, defaults to `$stdout`.
+		# 
+		# @returns [IO] The output stream.
 		def output
 			@output || $stdout
 		end
 		
+		# Generate a string representation of the command.
+		# 
+		# @returns [String] The class name.
 		def to_s
 			self.class.name
 		end
 		
+		# The name of the command.
+		# 
+		# @attribute [String]
 		attr :name
+		
+		# The parent command, if this is a nested command.
+		# 
+		# @attribute [Command | Nil]
 		attr :parent
 		
+		# Duplicate the command with additional arguments.
+		# 
+		# @parameter input [Array(String)] The additional command-line arguments to parse.
+		# @returns [Command] The duplicated command instance.
 		def [](*input)
 			self.dup.tap{|command| command.parse(input)}
 		end
 		
+		# Parse the command-line input.
+		# 
+		# @parameter input [Array(String)] The command-line arguments to parse.
+		# @returns [Command] The command instance.
 		def parse(input)
 			self.class.table.merged.parse(input, self)
 			
@@ -133,6 +219,11 @@ module Samovar
 			end
 		end
 		
+		# Print usage information for this command.
+		# 
+		# @parameter output [IO] The output stream to print to.
+		# @parameter formatter [Class] The formatter class to use for output.
+		# @yields {|formatter| ...} A block to customize the output.
 		def print_usage(output: self.output, formatter: Output::UsageFormatter, &block)
 			rows = Output::Rows.new
 			

@@ -99,4 +99,31 @@ describe Samovar::Command do
 			expect(top.options[:color]).to be == false
 		end
 	end
+	
+	with "error handling" do
+		it "handles invalid input gracefully" do
+			output = StringIO.new
+			result = Top.parse(["--invalid-option"], output: output)
+			
+			expect(result).to be_nil
+			expect(output.string).to be(:include?, "Could not parse")
+			expect(output.string).to be(:include?, "--invalid-option")
+		end
+		
+		it "handles invalid input after valid command" do
+			top = Top["bottom", "project"]
+			
+			expect do
+				top.parse(["--invalid"])
+			end.to raise_exception(Samovar::InvalidInputError)
+		end
+	end
+	
+	with "#to_s" do
+		it "can convert command to string" do
+			top = Top[]
+			expect(top.to_s).to be(:include?, "Top")
+		end
+	end
 end
+

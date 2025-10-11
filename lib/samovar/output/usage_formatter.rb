@@ -15,19 +15,31 @@ require_relative "rows"
 
 module Samovar
 	module Output
+		# Formats and prints usage information to a terminal.
+		# 
+		# Uses the `mapping` gem to handle different output object types with custom formatting rules.
 		class UsageFormatter < Mapping::Model
+			# Print usage information to the output.
+			# 
+			# @parameter rows [Rows] The rows to format and print.
+			# @parameter output [IO] The output stream to print to.
+			# @yields {|formatter| ...} Optional block to customize the formatter.
 			def self.print(rows, output)
-				formatter = self.new(rows, output)
+				formatter = self.new(output)
 				
 				yield formatter if block_given?
 				
-				formatter.print
+				formatter.print(rows)
 			end
 			
-			def initialize(rows, output)
-				@rows = rows
+			# Initialize a new usage formatter.
+			# 
+			# @parameter rows [Rows] The rows to format.
+			# @parameter output [IO] The output stream to print to.
+			def initialize(output)
 				@output = output
 				@width = 80
+				@first = true
 				
 				@terminal = Console::Terminal.for(@output)
 				@terminal[:header] = @terminal.style(nil, nil, :bright)
@@ -45,7 +57,11 @@ module Samovar
 			end
 			
 			map(Header) do |header, rows|
-				@terminal.puts unless header == @rows.first
+				if @first
+					@first = false
+				else
+					@terminal.puts
+				end
 				
 				command_line = header.object.command_line(header.name)
 				@terminal.puts "#{rows.indentation}#{command_line}", style: :header
@@ -64,8 +80,10 @@ module Samovar
 				items.collect{|row, rows| map(row, rows)}
 			end
 			
-			def print
-				map(@rows)
+			# Print the formatted usage output.
+			def print(rows, first: @first)
+				@first = first
+				map(rows)
 			end
 		end
 	end

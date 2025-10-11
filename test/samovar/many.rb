@@ -31,4 +31,37 @@ describe Samovar::Many do
 		expect(many.parse(input)).to be == ["2", "3"]
 		expect(input).to be == ["--else"]
 	end
+	
+	with "required field" do
+		let(:required_many) {subject.new(:items, "some items", required: true)}
+		
+		it "raises error when required field is missing" do
+			expect do
+				required_many.parse([])
+			end.to raise_exception(Samovar::MissingValueError)
+		end
+		
+		it "includes required in usage" do
+			usage = required_many.to_a
+			expect(usage.join(" ")).to be(:include?, "required")
+		end
+	end
+	
+	with "default value" do
+		it "includes default in usage" do
+			usage = many.to_a
+			expect(usage.join(" ")).to be(:include?, "default")
+		end
+	end
+	
+	with "no stop pattern" do
+		let(:many_no_stop) {subject.new(:items, "all items", stop: nil)}
+		let(:all_input) {["1", "2", "3", "--also"]}
+		
+		it "consumes all remaining input" do
+			expect(many_no_stop.parse(all_input)).to be == ["1", "2", "3", "--also"]
+			expect(all_input).to be(:empty?)
+		end
+	end
 end
+

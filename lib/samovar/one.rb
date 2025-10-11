@@ -4,7 +4,17 @@
 # Copyright, 2016-2023, by Samuel Williams.
 
 module Samovar
+	# Represents a single positional argument in a command.
+	# 
+	# A `One` parser extracts exactly one argument from the command line that matches the specified pattern.
 	class One
+		# Initialize a new positional argument parser.
+		# 
+		# @parameter key [Symbol] The name of the attribute to store the value in.
+		# @parameter description [String] A description of the argument for help output.
+		# @parameter pattern [Regexp] A pattern to match valid values.
+		# @parameter default [Object] The default value if no argument is provided.
+		# @parameter required [Boolean] Whether the argument is required.
 		def initialize(key, description, pattern: //, default: nil, required: false)
 			@key = key
 			@description = description
@@ -13,16 +23,41 @@ module Samovar
 			@required = required
 		end
 		
+		# The name of the attribute to store the value in.
+		# 
+		# @attribute [Symbol]
 		attr :key
+		
+		# A description of the argument for help output.
+		# 
+		# @attribute [String]
 		attr :description
+		
+		# A pattern to match valid values.
+		# 
+		# @attribute [Regexp]
 		attr :pattern
+		
+		# The default value if no argument is provided.
+		# 
+		# @attribute [Object]
 		attr :default
+		
+		# Whether the argument is required.
+		# 
+		# @attribute [Boolean]
 		attr :required
 		
+		# Generate a string representation for usage output.
+		# 
+		# @returns [String] The usage string.
 		def to_s
 			"<#{@key}>"
 		end
 		
+		# Generate an array representation for usage output.
+		# 
+		# @returns [Array] The usage array.
 		def to_a
 			usage = [to_s, @description]
 			
@@ -35,6 +70,12 @@ module Samovar
 			return usage
 		end
 		
+		# Parse a single argument from the input.
+		# 
+		# @parameter input [Array(String)] The command-line arguments.
+		# @parameter parent [Command | Nil] The parent command.
+		# @parameter default [Object | Nil] An override for the default value.
+		# @returns [String | Object | Nil] The parsed value, or the default if no match.
 		def parse(input, parent = nil, default = nil)
 			if input.first =~ @pattern
 				input.shift

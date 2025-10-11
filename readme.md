@@ -12,165 +12,17 @@ I've been using [Optimist](https://github.com/ManageIQ/optimist) and while it's 
 
 One of the other issues I had with existing frameworks is testability. Most frameworks expect to have some pretty heavy logic directly in the binary executable, or at least don't structure your code in a way which makes testing easy. Samovar structures your command processing logic into classes which can be easily tested in isolation, which means that you can mock up and [spec your command-line executables easily](https://github.com/ioquatix/teapot/blob/master/spec/teapot/command_spec.rb).
 
-## Examples
-
-  - [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb) is a build system and uses multiple top-level commands.
-  - [Utopia](https://github.com/ioquatix/utopia/blob/master/lib/utopia/command.rb) is a web application platform and uses nested commands.
-  - [Synco](https://github.com/ioquatix/synco/blob/master/lib/synco/command.rb) is a backup tool and sends commands across the network and has lots of options with default values.
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'samovar'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install samovar
-
 ## Usage
 
-Generally speaking, you should create `Command` classes that represent specific functions in your program. The top level command might look something like this:
+Please see the [project documentation](https://ioquatix.github.io/samovar/) for more details.
 
-``` ruby
-require "samovar"
+  - [Getting Started](https://ioquatix.github.io/samovar/guides/getting-started/index) - This guide explains how to use `samovar` to build command-line tools and applications.
 
-class List < Samovar::Command
-	self.description = "List the current directory"
-	
-	def call
-		system("ls -lah")
-	end
-end
+## See Also
 
-class Application < Samovar::Command
-	options do
-		option "--help", "Do you need help?"
-	end
-	
-	nested :command, {
-		"list" => List
-	}, default: "list"
-	
-	def call
-		if @options[:help]
-			self.print_usage
-		else
-			@command.call
-		end
-	end
-end
-
-Application.call # Defaults to ARGV.
-```
-
-### Basic Options
-
-``` ruby
-require "samovar"
-
-class Application < Samovar::Command
-	options do
-		option "-f/--frobulate <text>", "Frobulate the text"
-		option "-x | -y", "Specify either x or y axis.", key: :axis
-		option "-F/--yeah/--flag", "A boolean flag with several forms."
-		option "--things <a,b,c>", "A list of things" do |value|
-			value.split(/\s*,\s*/)
-		end
-	end
-end
-
-application = Application.new(["-f", "Algebraic!"])
-application.options[:frobulate] # 'Algebraic!'
-
-application = Application.new(["-x", "-y"])
-application.options[:axis] # :y
-
-application = Application.new(["-F"])
-application.options[:flag] # true
-
-application = Application.new(["--things", "x,y,z"])
-application.options[:things] # ['x', 'y', 'z']
-```
-
-### Nested Commands
-
-``` ruby
-require "samovar"
-
-class Create < Samovar::Command
-	def invoke(parent)
-		puts "Creating"
-	end
-end
-
-class Application < Samovar::Command
-	nested "<command>",
-		"create" => Create
-	
-	def invoke(program_name: File.basename($0))
-		if @command
-			@command.invoke
-		else
-			print_usage(program_name)
-		end
-	end
-end
-
-Application.new(["create"]).invoke
-```
-
-### ARGV Splits
-
-``` ruby
-require "samovar"
-
-class Application < Samovar::Command
-	many :packages
-	split :argv
-end
-
-application = Application.new(["foo", "bar", "baz", "--", "apples", "oranges", "feijoas"])
-application.packages # ['foo', 'bar', 'baz']
-application.argv # ['apples', 'oranges', 'feijoas']
-```
-
-### Parsing Tokens
-
-``` ruby
-require "samovar"
-
-class Application < Samovar::Command
-	self.description = "Mix together your favorite things."
-	
-	one :fruit, "Name one fruit"
-	many :cakes, "Any cakes you like"
-end
-
-application = Application.new(["apple", "chocolate cake", "fruit cake"])
-application.fruit # 'apple'
-application.cakes # ['chocolate cake', 'fruit cake']
-```
-
-### Explicit Commands
-
-Given a custom `Samovar::Command` subclass, you can instantiate it with options:
-
-``` ruby
-application = Application["--root", path]
-```
-
-You can also duplicate an existing command instance with additions/changes:
-
-``` ruby
-concurrent_application = application["--threads", 12]
-```
-
-These forms can be useful when invoking one command from another, or in unit tests.
+  - [Teapot](https://github.com/ioquatix/teapot/blob/master/lib/teapot/command.rb) is a build system and uses multiple top-level commands.
+  - [Synco](https://github.com/ioquatix/synco/blob/master/lib/synco/command.rb) is a backup tool and sends commands across the network and has lots of options with default values.
+  - [Bake](https://github.com/ioquatix/bake) is an alternative task runner that makes it easy to expose Ruby methods as command-line tasks.
 
 ## Contributing
 
@@ -190,7 +42,7 @@ In order to protect users of this project, we require all contributors to comply
 
 This project is best served by a collaborative and respectful environment. Treat each other professionally, respect differing viewpoints, and engage constructively. Harassment, discrimination, or harmful behavior is not tolerated. Communicate clearly, listen actively, and support one another. If any issues arise, please inform the project maintainers.
 
-## Future Work
+### Future Work
 
 ### Multi-value Options
 

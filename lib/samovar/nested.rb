@@ -4,7 +4,16 @@
 # Copyright, 2016-2023, by Samuel Williams.
 
 module Samovar
+	# Represents nested sub-commands in a command.
+	# 
+	# A `Nested` parser allows you to define multiple sub-commands that can be invoked from the parent command.
 	class Nested
+		# Initialize a new nested command parser.
+		# 
+		# @parameter key [Symbol] The name of the attribute to store the selected command in.
+		# @parameter commands [Hash] A mapping of command names to command classes.
+		# @parameter default [String | Nil] The default command name if none is provided.
+		# @parameter required [Boolean] Whether a command is required.
 		def initialize(key, commands, default: nil, required: false)
 			@key = key
 			@commands = commands
@@ -15,15 +24,36 @@ module Samovar
 			@required = required
 		end
 		
+		# The name of the attribute to store the selected command in.
+		# 
+		# @attribute [Symbol]
 		attr :key
+		
+		# A mapping of command names to command classes.
+		# 
+		# @attribute [Hash]
 		attr :commands
+		
+		# The default command name if none is provided.
+		# 
+		# @attribute [String | Nil]
 		attr :default
+		
+		# Whether a command is required.
+		# 
+		# @attribute [Boolean]
 		attr :required
 		
+		# Generate a string representation for usage output.
+		# 
+		# @returns [String] The usage string.
 		def to_s
 			"<#{@key}>"
 		end
 		
+		# Generate an array representation for usage output.
+		# 
+		# @returns [Array] The usage array.
 		def to_a
 			usage = [self.to_s]
 			
@@ -44,7 +74,12 @@ module Samovar
 			return usage
 		end
 		
-		# @param default [Command] the default command if any.
+		# Parse a nested command from the input.
+		# 
+		# @parameter input [Array(String)] The command-line arguments.
+		# @parameter parent [Command | Nil] The parent command.
+		# @parameter default [Command | Nil] The default command instance.
+		# @returns [Command | Object | Nil] The parsed command instance, or the default if no match.
 		def parse(input, parent = nil, default = nil)
 			if command = @commands[input.first]
 				name = input.shift
@@ -60,6 +95,9 @@ module Samovar
 			end
 		end
 		
+		# Generate usage information for this nested command.
+		# 
+		# @parameter rows [Output::Rows] The rows to append usage information to.
 		def usage(rows)
 			rows << self
 			

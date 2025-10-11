@@ -6,7 +6,16 @@
 require_relative "option"
 
 module Samovar
+	# Represents a collection of command-line options.
+	# 
+	# Options provide a DSL for defining multiple option flags in a single block.
 	class Options
+		# Parse and create an options collection from a block.
+		# 
+		# @parameter arguments [Array] The arguments for the options collection.
+		# @parameter options [Hash] Additional options.
+		# @yields {|...| ...} A block that defines options using {#option}.
+		# @returns [Options] The frozen options collection.
 		def self.parse(*arguments, **options, &block)
 			options = self.new(*arguments, **options)
 			
@@ -15,6 +24,10 @@ module Samovar
 			return options.freeze
 		end
 		
+		# Initialize a new options collection.
+		# 
+		# @parameter title [String] The title for this options group in usage output.
+		# @parameter key [Symbol] The key to use for storing parsed options.
 		def initialize(title = "Options", key: :options)
 			@title = title
 			@ordered = []
@@ -27,6 +40,9 @@ module Samovar
 			@defaults = {}
 		end
 		
+		# Initialize a duplicate of this options collection.
+		# 
+		# @parameter source [Options] The source options to duplicate.
 		def initialize_dup(source)
 			super
 			
@@ -35,12 +51,29 @@ module Samovar
 			@defaults = @defaults.dup
 		end
 		
+		# The title for this options group in usage output.
+		# 
+		# @attribute [String]
 		attr :title
+		
+		# The ordered list of options.
+		# 
+		# @attribute [Array(Option)]
 		attr :ordered
 		
+		# The key to use for storing parsed options.
+		# 
+		# @attribute [Symbol]
 		attr :key
+		
+		# The default values for options.
+		# 
+		# @attribute [Hash]
 		attr :defaults
 		
+		# Freeze this options collection.
+		# 
+		# @returns [Options] The frozen options collection.
 		def freeze
 			return self if frozen?
 			
@@ -53,24 +86,41 @@ module Samovar
 			super
 		end
 		
+		# Iterate over each option.
+		# 
+		# @yields {|option| ...} Each option in the collection.
 		def each(&block)
 			@ordered.each(&block)
 		end
 		
+		# Check if this options collection is empty.
+		# 
+		# @returns [Boolean] True if there are no options.
 		def empty?
 			@ordered.empty?
 		end
 		
+		# Define a new option in this collection.
+		# 
+		# @parameter arguments [Array] The arguments for the option.
+		# @parameter options [Hash] Additional options.
+		# @yields {|value| ...} An optional block to transform the parsed value.
 		def option(*arguments, **options, &block)
 			self << Option.new(*arguments, **options, &block)
 		end
 		
+		# Merge another options collection into this one.
+		# 
+		# @parameter options [Options] The options to merge.
 		def merge!(options)
 			options.each do |option|
 				self << option
 			end
 		end
 		
+		# Add an option to this collection.
+		# 
+		# @parameter option [Option] The option to add.
 		def << option
 			@ordered << option
 			option.flags.each do |flag|
@@ -86,11 +136,17 @@ module Samovar
 			end
 		end
 		
+		# Parse options from the input.
+		# 
+		# @parameter input [Array(String)] The command-line arguments.
+		# @parameter parent [Command | Nil] The parent command.
+		# @parameter default [Hash | Nil] Default values to use.
+		# @returns [Hash] The parsed option values.
 		def parse(input, parent = nil, default = nil)
 			values = (default || @defaults).dup
 			
 			while option = @keyed[input.first]
-				prefix = input.first
+				# prefix = input.first
 				result = option.parse(input)
 				if result != nil
 					values[option.key] = result
@@ -100,10 +156,16 @@ module Samovar
 			return values
 		end
 		
+		# Generate a string representation for usage output.
+		# 
+		# @returns [String] The usage string.
 		def to_s
 			@ordered.collect(&:to_s).join(" ")
 		end
 		
+		# Generate usage information for this options collection.
+		# 
+		# @parameter rows [Output::Rows] The rows to append usage information to.
 		def usage(rows)
 			@ordered.each do |option|
 				rows << option

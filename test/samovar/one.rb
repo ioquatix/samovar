@@ -31,4 +31,27 @@ describe Samovar::One do
 		expect(one.parse(input)).to be == "2"
 		expect(input).to be == ["3", "4"]
 	end
+	
+	with "required field" do
+		let(:required_one) {subject.new(:thing, "a thing", required: true)}
+		
+		it "raises error when required field is missing" do
+			expect do
+				required_one.parse([])
+			end.to raise_exception(Samovar::MissingValueError)
+		end
+		
+		it "includes required in usage" do
+			usage = required_one.to_a
+			expect(usage.join(" ")).to be(:include?, "required")
+		end
+	end
+	
+	with "default value" do
+		it "includes default in usage" do
+			usage = one.to_a
+			expect(usage.join(" ")).to be(:include?, "default")
+		end
+	end
 end
+
