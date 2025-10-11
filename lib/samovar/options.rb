@@ -153,10 +153,15 @@ module Samovar
 				end
 			end
 			
+			# Validate required options
+			@ordered.each do |option|
+				if option.required && !values.key?(option.key)
+					raise MissingValueError.new(parent, option.key)
+				end
+			end
+			
 			return values
-		end
-		
-		# Generate a string representation for usage output.
+		end		# Generate a string representation for usage output.
 		# 
 		# @returns [String] The usage string.
 		def to_s

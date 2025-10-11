@@ -6,7 +6,7 @@
 require "samovar"
 
 describe Samovar::Output::UsageFormatter do
-	let(:output) { StringIO.new }
+	let(:output) {StringIO.new}
 	
 	with "basic command" do
 		let(:command_class) do
@@ -113,21 +113,22 @@ describe Samovar::Output::UsageFormatter do
 		end
 		
 		it "formats InvalidInputError" do
-			# Parse with invalid input - error will be printed to our output stream
-			result = command_class.parse(["--unknown-flag"], output: output)
+			# Call with invalid input - error will be printed to our output stream:
+			result = command_class.call(["--unknown-flag"], output: output)
 			
 			expect(result).to be_nil
-			# Verify error was formatted and printed
+			
+			# Verify error was formatted and printed:
 			expect(output.string).to be(:include?, "Could not parse")
 			expect(output.string).to be(:include?, "--unknown-flag")
 		end
 		
 		it "skips help flag errors" do
-			# The --help flag should not print an error message
-			result = command_class.parse(["--help"], output: output)
+			# The --help flag should not print an error message:
+			result = command_class.call(["--help"], output: output)
 			
 			expect(result).to be_nil
-			# Should not include error message for help
+			# Should not include error message for help:
 			expect(output.string).not.to be(:include?, "Could not parse")
 		end
 	end

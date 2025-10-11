@@ -119,17 +119,14 @@ module Samovar
 		# Parse this option from the input.
 		# 
 		# @parameter input [Array(String)] The command-line arguments.
-		# @parameter parent [Command | Nil] The parent command.
-		# @parameter default [Object | Nil] An override for the default value.
+		# @parameter parent [Command | Nil] The parent command (unused, kept for compatibility).
+		# @parameter default [Object | Nil] An override for the default value (unused, kept for compatibility).
 		# @returns [Object | Nil] The parsed value.
 		def parse(input, parent = nil, default = nil)
 			result = @flags.parse(input)
+			
 			if result != nil
 				@value.nil? ? coerce(result) : @value
-			elsif default ||= @default
-				return default
-			elsif @required
-				raise MissingValueError.new(parent, self)
 			end
 		end
 		

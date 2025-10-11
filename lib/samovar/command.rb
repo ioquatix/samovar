@@ -10,6 +10,7 @@ require_relative "one"
 require_relative "many"
 require_relative "split"
 
+
 require_relative "output"
 
 require_relative "error"
@@ -21,27 +22,31 @@ module Samovar
 	class Command
 		# Parse and execute the command with the given input.
 		# 
-		# @parameter input [Array(String)] The command-line arguments to parse.
-		def self.call(input = ARGV)
-			if command = self.parse(input)
-				command.call
-			end
-		end
-		
-		# Parse the command-line input and create a command instance.
-		# 
-		# This is the top level entry point for parsing ARGV.
+		# This is the high-level entry point for CLI applications. It handles errors gracefully by printing usage and returning nil.
 		# 
 		# @parameter input [Array(String)] The command-line arguments to parse.
-		# @returns [Command | Nil] The parsed command instance, or nil if parsing failed.
-		def self.parse(input, output: $stderr)
-			self.new(input)
+		# @parameter output [IO] The output stream for error messages.
+		# @returns [Object | Nil] The result of the command's call method, or nil if parsing/execution failed.
+		def self.call(input = ARGV, output: $stderr)
+			self.parse(input).call
 		rescue Error => error
 			error.command.print_usage(output: output) do |formatter|
 				formatter.map(error)
 			end
 			
 			return nil
+		end
+		
+		# Parse the command-line input and create a command instance.
+		# 
+		# This is the low-level parsing primitive. It raises {Error} exceptions on parsing failures.
+		# For CLI applications, use {call} instead which handles errors gracefully.
+		# 
+		# @parameter input [Array(String)] The command-line arguments to parse.
+		# @returns [Command] The parsed command instance.
+		# @raises [Error] If parsing fails.
+		def self.parse(input)
+			self.new(input)
 		end
 		
 		# Create a new command instance with the given arguments.
@@ -74,8 +79,7 @@ module Samovar
 		# @parameter row The row to append to the table.
 		def self.append(row)
 			if method_defined?(row.key, false)
-				warning "Method for key #{row.key} is already defined!", caller
-				# raise ArgumentError, "Method for key #{row.key} is already defined!"
+				raise ArgumentError, "Method for key #{row.key} is already defined!"
 			end
 			
 			attr_accessor(row.key) if row.respond_to?(:key)
@@ -147,11 +151,9 @@ module Samovar
 		# @parameter name [String] The name of the command.
 		# @returns [String] The command-line usage string.
 		def self.command_line(name)
-			if table = self.table.merged
-				"#{name} #{table.merged.usage}"
-			else
-				name
-			end
+			table = self.table.merged
+			
+			return "#{name} #{table.usage}"
 		end
 		
 		# Initialize a new command instance.

@@ -42,13 +42,60 @@ describe Samovar::Options do
 			end
 		end
 		
+		let(:command_class) do
+			Class.new(Samovar::Command) do
+				self.description = "A command with required options."
+				
+				options do
+					option "--config <path>", "The configuration file path.", required: true
+					option "--verbose", "Enable verbose output."
+				end
+			end
+		end
+		
 		it "includes required in usage" do
 			option = required_options.ordered.first
 			usage = option.to_a
 			expect(usage.join(" ")).to be(:include?, "required")
 		end
+		
+		it "raises exception when required option is missing" do
+			expect do
+				command_class.parse([])
+			end.to raise_exception(Samovar::MissingValueError)
+		end
+		
+		it "raises exception when only optional options are provided" do
+			expect do
+				command_class.parse(["--verbose"])
+			end.to raise_exception(Samovar::MissingValueError)
+		end
+		
+		it "succeeds when required option is provided" do
+			command = command_class.parse(["--config", "config.yml"])
+			
+			expect(command).not.to be_nil
+			expect(command.options[:config]).to be == "config.yml"
+		end
+		
+		it "succeeds when both required and optional options are provided" do
+			command = command_class.parse(["--config", "config.yml", "--verbose"])
+			
+			expect(command).not.to be_nil
+			expect(command.options[:config]).to be == "config.yml"
+			expect(command.options[:verbose]).to be == true
+		end
+		
+		it "handles errors gracefully with call()" do
+			output = StringIO.new
+			result = command_class.call([], output: output)
+			
+			expect(result).to be_nil
+			expect(output.string).to be(:include?, "config")
+			expect(output.string).to be(:include?, "required")
+		end
 	end
-
+	
 	with "option with fixed value" do
 		let(:fixed_options) do
 			subject.parse do

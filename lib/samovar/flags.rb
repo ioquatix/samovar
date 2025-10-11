@@ -180,9 +180,13 @@ module Samovar
 		# @returns [String | Symbol | Nil] The parsed value.
 		def parse(input)
 			if prefix?(input.first)
+				# Whether we are expecting to parse a value from input:
 				if @value
-					return input.shift(2).last
+					# Get the actual value from input:
+					flag, value = input.shift(2)
+					return value
 				else
+					# Otherwise, we are just a boolean flag:
 					input.shift
 					return key
 				end

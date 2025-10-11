@@ -91,7 +91,7 @@ module Samovar
 			elsif @default
 				@commands[@default].new(input, name: @default, parent: parent)
 			elsif @required
-				raise MissingValueError.new(parent, self)
+				raise MissingValueError.new(parent, @key)
 			end
 		end
 		

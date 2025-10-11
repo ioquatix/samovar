@@ -41,6 +41,39 @@ describe Samovar::Command do
 		Top.call([])
 	end
 	
+	with "error handling in call()" do
+		let(:command_class) do
+			Class.new(Samovar::Command) do
+				self.description = "A command that raises errors during execution."
+				
+				one :action, "The action to perform."
+				
+				def call
+					if @action == "fail"
+						raise Samovar::MissingValueError.new(self, :something_required)
+					end
+					
+					return "success"
+				end
+			end
+		end
+		
+		it "handles errors raised during call execution" do
+			output = StringIO.new
+			result = command_class.call(["fail"], output: output)
+			
+			expect(result).to be_nil
+			expect(output.string).to be(:include?, "something_required")
+			expect(output.string).to be(:include?, "required")
+		end
+		
+		it "returns result when call succeeds" do
+			result = command_class.call(["ok"])
+			
+			expect(result).to be == "success"
+		end
+	end
+	
 	it "should use default value" do
 		top = Top[]
 		expect(top.options[:configuration]).to be == "TEAPOT_CONFIGURATION"
@@ -101,13 +134,19 @@ describe Samovar::Command do
 	end
 	
 	with "error handling" do
-		it "handles invalid input gracefully" do
+		it "handles invalid input gracefully with call()" do
 			output = StringIO.new
-			result = Top.parse(["--invalid-option"], output: output)
+			result = Top.call(["--invalid-option"], output: output)
 			
 			expect(result).to be_nil
 			expect(output.string).to be(:include?, "Could not parse")
 			expect(output.string).to be(:include?, "--invalid-option")
+		end
+		
+		it "raises exception with parse() for invalid input" do
+			expect do
+				Top.parse(["--invalid-option"])
+			end.to raise_exception(Samovar::InvalidInputError)
 		end
 		
 		it "handles invalid input after valid command" do
@@ -123,6 +162,36 @@ describe Samovar::Command do
 		it "can convert command to string" do
 			top = Top[]
 			expect(top.to_s).to be(:include?, "Top")
+		end
+	end
+	
+	with "edge cases" do
+		it "raises error for duplicate method definitions" do
+			# Create a command that defines a method before adding a field with same name
+			command_class = Class.new(Samovar::Command) do
+				self.description = "Test duplicate keys"
+				
+				# Define a method first
+				def name
+					"existing method"
+				end
+			end
+			
+			# This should raise ArgumentError when we try to add a field with same name
+			expect do
+				command_class.one(:name, "This conflicts with the method")
+			end.to raise_exception(ArgumentError, message: be(:include?, "already defined"))
+		end
+		
+		it "generates command line usage for minimal command" do
+			# Create a minimal command with no options/arguments
+			command_class = Class.new(Samovar::Command) do
+				self.description = "Minimal command"
+			end
+			
+			# Should return the name (with trailing space from empty usage)
+			usage = command_class.command_line("mycommand")
+			expect(usage).to be(:start_with?, "mycommand")
 		end
 	end
 end

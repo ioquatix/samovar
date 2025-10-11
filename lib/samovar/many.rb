@@ -84,7 +84,7 @@ module Samovar
 			elsif default ||= @default
 				return default
 			elsif @required
-				raise MissingValueError.new(parent, self)
+				raise MissingValueError.new(parent, @key)
 			end
 		end
 	end
