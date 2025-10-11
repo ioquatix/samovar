@@ -4,6 +4,7 @@
 # Copyright, 2016-2025, by Samuel Williams.
 # Copyright, 2018, by Gabriel Mazetto.
 
+# @namespace
 module Samovar
 	VERSION = "2.3.0"
 end
