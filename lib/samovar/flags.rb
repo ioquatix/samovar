@@ -190,6 +190,9 @@ module Samovar
 					input.shift
 					return key
 				end
+			elsif prefix?(input.first.split("=").first)
+				flag, value = input.shift(1).first.split("=")
+				return value
 			end
 		end
 	end
