@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
 	spec.version = Samovar::VERSION
 	
 	spec.summary = "Samovar is a flexible option parser excellent support for sub-commands and help documentation."
-	spec.authors = ["Samuel Williams", "Gabriel Mazetto"]
+	spec.authors = ["Samuel Williams", "Gabriel Mazetto", "Gerhard Schlager"]
 	spec.license = "MIT"
 	
 	spec.cert_chain  = ["release.cert"]
@@ -26,5 +26,4 @@ Gem::Specification.new do |spec|
 	spec.required_ruby_version = ">= 3.3"
 	
 	spec.add_dependency "console", "~> 1.0"
-	spec.add_dependency "mapping", "~> 1.0"
 end
