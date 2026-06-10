@@ -20,7 +20,9 @@ end
 group :test do
 	gem "covered"
 	gem "sus"
-	gem "decode"
+	# `decode` depends on `rbs`, whose native extension fails to build on non-MRI
+	# runtimes (e.g. JRuby). It's only used for documentation coverage, which runs on MRI.
+	gem "decode", platforms: :mri
 	
 	gem "rubocop"
 	gem "rubocop-md"
