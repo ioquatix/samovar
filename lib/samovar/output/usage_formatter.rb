@@ -3,7 +3,6 @@
 # Released under the MIT License.
 # Copyright, 2019-2025, by Samuel Williams.
 
-require "mapping/model"
 require "console/terminal"
 
 require_relative "../error"
@@ -17,8 +16,8 @@ module Samovar
 	module Output
 		# Formats and prints usage information to a terminal.
 		# 
-		# Uses the `mapping` gem to handle different output object types with custom formatting rules.
-		class UsageFormatter < Mapping::Model
+		# Dispatches on the type of each output object to apply custom formatting rules.
+		class UsageFormatter
 			# Print usage information to the output.
 			# 
 			# @parameter rows [Rows] The rows to format and print.
@@ -47,37 +46,41 @@ module Samovar
 				@terminal[:error] = @terminal.style(:red)
 			end
 			
-			map(InvalidInputError) do |error|
-				# This is a little hack which avoids printing out "--help" if it was part of an incomplete parse. In the future I'd prefer if this was handled explicitly.
-				@terminal.puts("#{error.message} in:", style: :error) unless error.help?
-			end
-			
-			map(MissingValueError) do |error|
-				@terminal.puts("#{error.message} in:", style: :error)
-			end
-			
-			map(Header) do |header, rows|
-				if @first
-					@first = false
+			# Format and print the given object according to its type.
+			# 
+			# @parameter object [Object] The object to format (a {Rows}, {Row}, {Header}, or error).
+			# @parameter arguments [Array] Extra context passed through to nested rows (the containing {Rows}).
+			def map(object, *arguments)
+				case object
+				when InvalidInputError
+					# This is a little hack which avoids printing out "--help" if it was part of an incomplete parse. In the future I'd prefer if this was handled explicitly.
+					@terminal.puts("#{object.message} in:", style: :error) unless object.help?
+				when MissingValueError
+					@terminal.puts("#{object.message} in:", style: :error)
+				when Header
+					header, rows = object, arguments.first
+					
+					if @first
+						@first = false
+					else
+						@terminal.puts
+					end
+					
+					command_line = header.object.command_line(header.name)
+					@terminal.puts "#{rows.indentation}#{command_line}", style: :header
+					
+					if description = header.object.description
+						@terminal.puts "#{rows.indentation}\t#{description}", style: :description
+						@terminal.puts
+					end
+				when Row
+					row, rows = object, arguments.first
+					@terminal.puts "#{rows.indentation}#{row.align(rows.columns)}"
+				when Rows
+					object.collect{|row, rows| map(row, rows)}
 				else
-					@terminal.puts
+					raise ArgumentError, "Unable to format #{object.class}!"
 				end
-				
-				command_line = header.object.command_line(header.name)
-				@terminal.puts "#{rows.indentation}#{command_line}", style: :header
-				
-				if description = header.object.description
-					@terminal.puts "#{rows.indentation}\t#{description}", style: :description
-					@terminal.puts
-				end
-			end
-			
-			map(Row) do |row, rows|
-				@terminal.puts "#{rows.indentation}#{row.align(rows.columns)}"
-			end
-			
-			map(Rows) do |items|
-				items.collect{|row, rows| map(row, rows)}
 			end
 			
 			# Print the formatted usage output.

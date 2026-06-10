@@ -150,4 +150,14 @@ describe Samovar::Output::UsageFormatter do
 			expect(block_called).to be == true
 		end
 	end
+	
+	with "unsupported object" do
+		it "raises an error for an unknown type" do
+			formatter = Samovar::Output::UsageFormatter.new(output)
+			
+			expect do
+				formatter.map(Object.new)
+			end.to raise_exception(ArgumentError, message: be(:include?, "Unable to format"))
+		end
+	end
 end
