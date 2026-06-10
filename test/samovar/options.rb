@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2017-2025, by Samuel Williams.
+# Copyright, 2017-2026, by Samuel Williams.
 
 require "samovar/options"
 
@@ -131,7 +131,7 @@ describe Samovar::Options do
 	with "callable type" do
 		let(:callable_options) do
 			subject.parse do
-				option "--upcase <value>", "Uppercase it", type: ->(val) {val.upcase}
+				option "--upcase <value>", "Uppercase it", type: ->(val){val.upcase}
 			end
 		end
 		

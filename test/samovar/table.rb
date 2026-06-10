@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2025, by Samuel Williams.
+# Copyright, 2019-2026, by Samuel Williams.
 
 require "samovar/table"
 require "samovar/options"
@@ -63,30 +63,30 @@ describe Samovar::Table do
 			expect(result).to be(:include?, "test")
 		end
 	end
-
+	
 	with "options and many values" do
 		let(:input) {["-x", "10", "1", "2", "3", "-y"]}
 		let(:receiver) {Struct.new(:options, :items).new}
-
+		
 		let(:options) do
 			Samovar::Options.parse do
 				option "-x <value>", "The x factor", default: 2
 				option "-y", "Use y axis"
 			end
 		end
-
+		
 		let(:many) {Samovar::Many.new(:items, "some items", default: [])}
-
+		
 		let(:table) do
 			subject.new.tap do |table|
 				table << options
 				table << many
 			end
 		end
-
+		
 		it "parses many values and preserves trailing option for later parsing" do
 			table.parse(input, receiver)
-
+			
 			expect(receiver.options).to have_keys(x: be == "10")
 			expect(receiver.items).to be == ["1", "2", "3"]
 			expect(input).to be == ["-y"]

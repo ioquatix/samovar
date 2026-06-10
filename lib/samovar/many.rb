@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2016-2023, by Samuel Williams.
+# Copyright, 2016-2026, by Samuel Williams.
 
 module Samovar
 	# Represents multiple positional arguments in a command.

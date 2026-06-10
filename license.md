@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright, 2016-2025, by Samuel Williams.  
+Copyright, 2016-2026, by Samuel Williams.  
 Copyright, 2018, by Gabriel Mazetto.  
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

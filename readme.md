@@ -58,6 +58,22 @@ We welcome contributions to this project.
 4.  Push to the branch (`git push origin my-new-feature`).
 5.  Create new Pull Request.
 
+### Running Tests
+
+To run the test suite:
+
+``` shell
+bundle exec sus
+```
+
+### Making Releases
+
+To make a new release:
+
+``` shell
+bundle exec bake gem:release:patch # or minor or major
+```
+
 ### Developer Certificate of Origin
 
 In order to protect users of this project, we require all contributors to comply with the [Developer Certificate of Origin](https://developercertificate.org/). This ensures that all contributions are properly licensed and attributed.
@@ -66,7 +82,7 @@ In order to protect users of this project, we require all contributors to comply
 
 This project is best served by a collaborative and respectful environment. Treat each other professionally, respect differing viewpoints, and engage constructively. Harassment, discrimination, or harmful behavior is not tolerated. Communicate clearly, listen actively, and support one another. If any issues arise, please inform the project maintainers.
 
-### Future Work
+## Future Work
 
 ### Multi-value Options
 
