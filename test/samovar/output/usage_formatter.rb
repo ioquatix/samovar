@@ -161,4 +161,50 @@ describe Samovar::Output::UsageFormatter do
 			end.to raise_exception(ArgumentError, message: be(:include?, "Unable to format"))
 		end
 	end
+	
+	with "first state propagation" do
+		let(:command) do
+			Struct.new(:description) do
+				def command_line(name)
+					"command #{name}"
+				end
+			end.new(nil)
+		end
+		
+		let(:rows) do
+			Samovar::Output::Rows.new.tap do |rows|
+				rows.nested("test", command) do |nested|
+					nested << ["--flag", "Flag description"]
+				end
+			end
+		end
+		
+		it "returns false after formatting the first header" do
+			formatter = Samovar::Output::UsageFormatter.new(output)
+			header = Samovar::Output::Header.new("test", command)
+			
+			first = formatter.map(header, rows, first: true)
+			
+			expect(first).to be == false
+		end
+		
+		it "prints a leading blank line when first is false" do
+			formatter = Samovar::Output::UsageFormatter.new(output)
+			
+			formatter.print(rows, first: false)
+			
+			lines = output.string.lines
+			expect(lines.first).to be == "\n"
+			expect(lines[1]).to be(:include?, "command test")
+		end
+		
+		it "does not persist first-state across separate print calls" do
+			formatter = Samovar::Output::UsageFormatter.new(output)
+			
+			formatter.print(rows)
+			formatter.print(rows)
+			
+			expect(output.string).not.to be(:include?, "\n\ncommand test")
+		end
+	end
 end

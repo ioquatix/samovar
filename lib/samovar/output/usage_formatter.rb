@@ -39,7 +39,6 @@ module Samovar
 			def initialize(output)
 				@output = output
 				@width = 80
-				@first = true
 				
 				@terminal = Console::Terminal.for(@output)
 				@terminal[:header] = @terminal.style(nil, nil, :bright)
@@ -51,7 +50,7 @@ module Samovar
 			# 
 			# @parameter object [Object] The object to format (a {Rows}, {Row}, {Header}, or error).
 			# @parameter arguments [Array] Extra context passed through to nested rows (the containing {Rows}).
-			def map(object, *arguments)
+			def map(object, *arguments, first: true)
 				case object
 				when InvalidInputError
 					# This is a little hack which avoids printing out "--help" if it was part of an incomplete parse. In the future I'd prefer if this was handled explicitly.
@@ -61,8 +60,8 @@ module Samovar
 				when Header
 					header, rows = object, arguments.first
 					
-					if @first
-						@first = false
+					if first
+						first = false
 					else
 						@terminal.puts
 					end
@@ -78,16 +77,19 @@ module Samovar
 					row, rows = object, arguments.first
 					@terminal.puts "#{rows.indentation}#{row.align(rows.columns)}"
 				when Rows
-					object.collect{|row, rows| map(row, rows)}
+					object.each do |row, rows|
+						first = map(row, rows, first: first)
+					end
 				else
 					raise ArgumentError, "Unable to format #{object.class}!"
 				end
+				
+				return first
 			end
 			
 			# Print the formatted usage output.
-			def print(rows, first: @first)
-				@first = first
-				map(rows)
+			def print(rows, first: true)
+				map(rows, first: first)
 			end
 		end
 	end
