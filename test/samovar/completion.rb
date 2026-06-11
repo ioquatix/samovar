@@ -161,6 +161,56 @@ describe Samovar::Completion do
 		expect(script).to be(:include?, 'argv=("${words[2,-1]}")')
 	end
 	
+	it "passes application arguments from bash completion" do
+		skip "bash is not available" unless system("command -v bash >/dev/null")
+		
+		path = File.join(root, "bash-trace")
+		adapter = File.join(root, "samovar.bash")
+		
+		File.write(adapter, subject.script(shell: :bash, executable: "samovar"))
+		
+		system({"TRACE" => path, "ADAPTER" => adapter}, "bash", "-c", <<~SCRIPT)
+			samovar() {
+				printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" > "$TRACE"
+				printf "completion\\tGenerate\\tcommand\\n"
+			}
+			
+			source "$ADAPTER"
+			
+			COMP_WORDS=(samovar completion --shell z)
+			COMP_CWORD=3
+			
+			_samovar_completion
+		SCRIPT
+		
+		expect(File.read(path)).to be == "2|completion --shell z\n"
+	end
+	
+	it "passes an empty token from bash completion" do
+		skip "bash is not available" unless system("command -v bash >/dev/null")
+		
+		path = File.join(root, "bash-empty-trace")
+		adapter = File.join(root, "samovar-empty.bash")
+		
+		File.write(adapter, subject.script(shell: :bash, executable: "samovar"))
+		
+		system({"TRACE" => path, "ADAPTER" => adapter}, "bash", "-c", <<~SCRIPT)
+			samovar() {
+				printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" > "$TRACE"
+				printf "completion\\tGenerate\\tcommand\\n"
+			}
+			
+			source "$ADAPTER"
+			
+			COMP_WORDS=(samovar "")
+			COMP_CWORD=1
+			
+			_samovar_completion
+		SCRIPT
+		
+		expect(File.read(path)).to be == "0|\n"
+	end
+	
 	it "passes application arguments from zsh completion" do
 		skip "zsh is not available" unless system("command -v zsh >/dev/null")
 		
