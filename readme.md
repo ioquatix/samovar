@@ -46,8 +46,10 @@ SAMOVAR_COMPLETE=1 command --for
 
 Applications can also generate shell adapter scripts:
 
-``` ruby
-puts Samovar::Completion.script(shell: :bash, executable: "command")
+``` shell
+samovar completions bash command
+samovar completions zsh command
+samovar completions fish command
 ```
 
 ## Releases

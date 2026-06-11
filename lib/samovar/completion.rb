@@ -234,8 +234,10 @@ module Samovar
 		end
 		
 		def self.fish_script(executable)
+			function = function_name(executable)
+			
 			<<~SCRIPT
-				function __#{function_name(executable)} --description 'Complete #{executable}'
+				function #{function} --description 'Complete #{executable}'
 					set -l argv (commandline -opc)
 					set -e argv[1]
 					set -l index (math (count $argv) - 1)
@@ -245,7 +247,7 @@ module Samovar
 					end
 				end
 
-				complete -c #{executable} -f -a "(__#{function_name(executable)})"
+				complete -c #{executable} -f -a "(#{function})"
 			SCRIPT
 		end
 	end

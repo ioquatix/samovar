@@ -87,11 +87,11 @@ module Samovar
 				name = input.shift
 				
 				# puts "Instantiating #{command} with #{input}"
-				command.new(input, name: name, parent: parent)
+				command.new(input, name: name, parent: parent, output: parent&.output)
 			elsif default
 				return default
 			elsif @default
-				@commands[@default].new(input, name: @default, parent: parent)
+				@commands[@default].new(input, name: @default, parent: parent, output: parent&.output)
 			elsif @required
 				raise MissingValueError.new(parent, @key)
 			end
