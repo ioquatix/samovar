@@ -3,38 +3,13 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
+require "completion"
+
 module Samovar
 	# Shell completion support for Samovar commands.
 	module Completion
-		# A single completion candidate.
-		Suggestion = Struct.new(:value, :description, :type, keyword_init: true) do
-			def to_s
-				value.to_s
-			end
-		end
-		
-		# The result of a completion request.
-		class Result
-			include Enumerable
-			
-			def initialize(suggestions = [])
-				@suggestions = suggestions
-			end
-			
-			attr :suggestions
-			
-			def each(&block)
-				@suggestions.each(&block)
-			end
-			
-			def empty?
-				@suggestions.empty?
-			end
-			
-			def +(other)
-				self.class.new(@suggestions + other.suggestions)
-			end
-		end
+		Suggestion = ::Completion::Candidate
+		Result = ::Completion::Result
 		
 		# The context provided to dynamic completion callbacks.
 		Context = Struct.new(:command_class, :argv, :index, :current, :row, :option, :environment, keyword_init: true)
@@ -68,18 +43,8 @@ module Samovar
 			complete_command(command_class, words, context)
 		end
 		
-		# Print the completion result in a stable TSV format.
-		# 
-		# @parameter result [Result] The result to print.
-		# @parameter output [IO] The output stream.
-		def self.print(result, output = $stdout)
-			result.each do |suggestion|
-				output.puts [
-					escape(suggestion.value),
-					escape(suggestion.description),
-					escape(suggestion.type),
-				].join("\t")
-			end
+		def self.extract_index(environment = ENV)
+			::Completion::Index.extract(environment)
 		end
 		
 		# Generate a shell completion script for an executable.
@@ -88,16 +53,7 @@ module Samovar
 		# @parameter executable [String] The executable name.
 		# @returns [String] The shell completion script.
 		def self.script(shell:, executable:)
-			case shell.to_sym
-			when :bash
-				bash_script(executable)
-			when :zsh
-				zsh_script(executable)
-			when :fish
-				fish_script(executable)
-			else
-				raise ArgumentError, "Unsupported shell: #{shell.inspect}"
-			end
+			::Completion::Shell.script(shell: shell, executable: executable)
 		end
 		
 		def self.complete_command(command_class, words, context)
@@ -200,92 +156,8 @@ module Samovar
 			end
 		end
 		
-		def self.escape(value)
-			value.to_s.gsub(/[\t\r\n]/, " ")
-		end
-		
-		def self.function_name(executable)
-			"_#{command_name(executable).gsub(/[^a-zA-Z0-9_]/, "_")}_completion"
-		end
-		
 		def self.command_name(executable)
-			File.basename(executable)
-		end
-		
-		def self.bash_script(executable)
-			function = function_name(executable)
-			command = command_name(executable)
-			
-			<<~SCRIPT
-				#{function}() {
-					local index=$((COMP_CWORD - 1))
-					local command="${COMP_WORDS[0]}"
-					local argv=("${COMP_WORDS[@]:1}")
-					COMPREPLY=()
-
-					while IFS=$'\\t' read -r value description type; do
-						COMPREPLY+=("$value")
-					done < <(SAMOVAR_COMPLETE="$index" "$command" "${argv[@]}")
-				}
-
-				complete -F #{function} #{command}
-			SCRIPT
-		end
-		
-		def self.zsh_script(executable)
-			function = function_name(executable)
-			command = command_name(executable)
-			
-			<<~SCRIPT
-				#compdef #{command}
-
-				#{function}() {
-					local index=$((CURRENT - 2))
-					local command="${words[1]}"
-					local -a argv
-					argv=("${(@)words[2,-1]}")
-
-					local -a completions
-					while IFS=$'\\t' read -r value description type; do
-						completions+=("${value}:${description}")
-					done < <(SAMOVAR_COMPLETE="$index" "$command" "${argv[@]}")
-
-					_describe '#{command}' completions
-				}
-
-				#{function}
-			SCRIPT
-		end
-		
-		def self.fish_script(executable)
-			function = function_name(executable)
-			command = command_name(executable)
-			
-			<<~SCRIPT
-				function #{function} --description 'Complete #{command}'
-					set -l argv (commandline -opc)
-					set -l command $argv[1]
-					set -e argv[1]
-					set -l current (commandline -ct)
-					set -l index
-					
-					if test -n "$current"
-						set -a argv $current
-						set index (math (count $argv) - 1)
-					else
-						set index (count $argv)
-					end
-
-					begin
-						set -lx SAMOVAR_COMPLETE "$index"
-						$command $argv
-					end | while read -l line
-						echo $line
-					end
-				end
-
-				complete -c #{command} -f -a "(#{function})"
-			SCRIPT
+			::Completion::Shell.command_name(executable)
 		end
 	end
 end

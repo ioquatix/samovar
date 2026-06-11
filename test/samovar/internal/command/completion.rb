@@ -23,7 +23,7 @@ describe Samovar::Internal::Command::Completion do
 		command.call
 		
 		expect(output.string).to be(:include?, "#compdef my-command")
-		expect(output.string).to be(:include?, "SAMOVAR_COMPLETE")
+		expect(output.string).to be(:include?, "COMPLETION_INDEX")
 	end
 	
 	it "requires the command name when generating" do
@@ -39,7 +39,7 @@ describe Samovar::Internal::Command::Completion do
 		command.call
 		
 		expect(output.string).to be(:include?, "#compdef my-command")
-		expect(output.string).to be(:include?, "SAMOVAR_COMPLETE")
+		expect(output.string).to be(:include?, "COMPLETION_INDEX")
 	end
 	
 	it "infers shell when generating" do
@@ -68,7 +68,7 @@ describe Samovar::Internal::Command::Completion do
 		path = File.join(directory, "_my-command")
 		expect(output.string).to be == "#{path}\n"
 		expect(File.read(path)).to be(:include?, "#compdef my-command")
-		expect(File.read(path)).to be(:include?, "SAMOVAR_COMPLETE")
+		expect(File.read(path)).to be(:include?, "COMPLETION_INDEX")
 	end
 	
 	it "infers shell and default directory when installing" do

@@ -136,19 +136,20 @@ describe Samovar::Completion do
 		output = StringIO.new
 		result = CompletionTop.complete(["le"], index: 0)
 		
-		subject.print(result, output)
+		result.print(output)
 		
 		expect(output.string).to be == "leaf\tLeaf command.\tcommand\n"
 	end
 	
-	it "uses SAMOVAR_COMPLETE as the cursor index in call" do
+	it "uses COMPLETION_INDEX as the cursor index in call" do
 		output = StringIO.new
 		
 		begin
-			ENV["SAMOVAR_COMPLETE"] = "0"
+			ENV["COMPLETION_INDEX"] = "0"
 			result = CompletionTop.call(["le"], completion_output: output)
+			expect(ENV).not.to be(:key?, "COMPLETION_INDEX")
 		ensure
-			ENV.delete("SAMOVAR_COMPLETE")
+			ENV.delete("COMPLETION_INDEX")
 		end
 		
 		expect(result).to be == true
@@ -156,7 +157,7 @@ describe Samovar::Completion do
 	end
 	
 	it "generates shell completion scripts" do
-		expect(subject.script(shell: :bash, executable: "samovar")).to be(:include?, "SAMOVAR_COMPLETE")
+		expect(subject.script(shell: :bash, executable: "samovar")).to be(:include?, "COMPLETION_INDEX")
 		expect(subject.script(shell: :zsh, executable: "samovar")).to be(:include?, "#compdef samovar")
 		expect(subject.script(shell: :fish, executable: "samovar")).to be(:include?, "complete -c samovar")
 	end
@@ -174,8 +175,8 @@ describe Samovar::Completion do
 		fish = subject.script(shell: :fish, executable: "samovar")
 		
 		expect(bash).to be(:include?, 'local command="${COMP_WORDS[0]}"')
-		expect(bash).to be(:include?, 'SAMOVAR_COMPLETE="$index" "$command" "${argv[@]}"')
-		expect(zsh).to be(:include?, 'SAMOVAR_COMPLETE="$index" "$command" "${argv[@]}"')
+		expect(bash).to be(:include?, 'COMPLETION_INDEX="$index" "$command" "${argv[@]}"')
+		expect(zsh).to be(:include?, 'COMPLETION_INDEX="$index" "$command" "${argv[@]}"')
 		expect(fish).to be(:include?, "set -l command $argv[1]")
 		expect(fish).to be(:include?, "$command $argv")
 	end
@@ -190,7 +191,7 @@ describe Samovar::Completion do
 		File.write(adapter, subject.script(shell: :bash, executable: "samovar"))
 		File.write(executable, <<~SCRIPT)
 			#!/bin/sh
-			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" > "$TRACE"
+			printf "%s|%s\\n" "$COMPLETION_INDEX" "$*" > "$TRACE"
 			printf "completion\\tGenerate\\tcommand\\n"
 		SCRIPT
 		File.chmod(0o755, executable)
@@ -217,7 +218,7 @@ describe Samovar::Completion do
 		File.write(adapter, subject.script(shell: :bash, executable: "samovar"))
 		File.write(executable, <<~SCRIPT)
 			#!/bin/sh
-			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" > "$TRACE"
+			printf "%s|%s\\n" "$COMPLETION_INDEX" "$*" > "$TRACE"
 			printf "completion\\tGenerate\\tcommand\\n"
 		SCRIPT
 		File.chmod(0o755, executable)
@@ -242,7 +243,7 @@ describe Samovar::Completion do
 		
 		File.write(executable, <<~SCRIPT)
 			#!/bin/sh
-			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" > "$TRACE"
+			printf "%s|%s\\n" "$COMPLETION_INDEX" "$*" > "$TRACE"
 			printf "completion\\tGenerate\\tcommand\\n"
 		SCRIPT
 		File.chmod(0o755, executable)
@@ -270,7 +271,7 @@ describe Samovar::Completion do
 		Dir.mkdir(directory)
 		File.write(executable, <<~SCRIPT)
 			#!/bin/sh
-			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" >> "$TRACE"
+			printf "%s|%s\\n" "$COMPLETION_INDEX" "$*" >> "$TRACE"
 			printf "completion\\tGenerate\\tcommand\\n"
 		SCRIPT
 		File.chmod(0o755, executable)
@@ -295,7 +296,7 @@ describe Samovar::Completion do
 		Dir.mkdir(directory)
 		File.write(executable, <<~SCRIPT)
 			#!/bin/sh
-			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" >> "$TRACE"
+			printf "%s|%s\\n" "$COMPLETION_INDEX" "$*" >> "$TRACE"
 			printf "completion\\tGenerate\\tcommand\\n"
 		SCRIPT
 		File.chmod(0o755, executable)
@@ -321,7 +322,7 @@ describe Samovar::Completion do
 		Dir.mkdir(directory)
 		File.write(executable, <<~SCRIPT)
 			#!/bin/sh
-			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" >> "$TRACE"
+			printf "%s|%s\\n" "$COMPLETION_INDEX" "$*" >> "$TRACE"
 			printf "completion\\tGenerate\\tcommand\\n"
 		SCRIPT
 		File.chmod(0o755, executable)

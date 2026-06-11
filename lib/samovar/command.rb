@@ -29,8 +29,8 @@ module Samovar
 		# @parameter output [IO] The output stream for error messages.
 		# @returns [Object | Nil] The result of the command's call method, or nil if parsing/execution failed.
 		def self.call(input = ARGV, output: $stderr, completion_output: $stdout)
-			if (index = ENV["SAMOVAR_COMPLETE"]) && !index.empty?
-				Completion.print(self.complete(input, index: index), completion_output)
+			if index = Completion.extract_index(ENV)
+				self.complete(input, index: index).print(completion_output)
 				return true
 			end
 			

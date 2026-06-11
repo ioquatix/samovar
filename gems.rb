@@ -6,6 +6,7 @@
 source "https://rubygems.org"
 
 gemspec
+gem "completion", path: "../completion"
 
 group :maintenance, optional: true do
 	gem "bake-modernize"
