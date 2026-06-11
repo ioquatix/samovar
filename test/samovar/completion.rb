@@ -14,7 +14,7 @@ class CompletionLeaf < Samovar::Command
 	end
 	
 	options do
-		option "--format <name>", "The output format.", completions: ["json", "text", "yaml"]
+		option "--format <name>", "The output format.", default: "text", completions: ["json", "text", "yaml"]
 		option "--verbose | --quiet", "Verbosity of output for debugging.", key: :logging
 		option "--[no]-color", "Enable or disable color output.", default: true
 	end
@@ -90,10 +90,16 @@ describe Samovar::Completion do
 		expect(values(result)).to be == ["json"]
 	end
 	
+	it "completes option defaults before static completions" do
+		result = CompletionTop.complete(["leaf", "--format"], index: 2)
+		
+		expect(values(result)).to be == ["text", "json", "yaml"]
+	end
+	
 	it "completes option values after a trailing option flag" do
 		result = CompletionTop.complete(["leaf", "--format"], index: 2)
 		
-		expect(values(result)).to be == ["json", "text", "yaml"]
+		expect(values(result)).to be == ["text", "json", "yaml"]
 	end
 	
 	it "completes positional values using method completions" do

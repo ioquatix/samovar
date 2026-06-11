@@ -106,6 +106,20 @@ describe Samovar::Internal::Command::Completion do
 		expect(result.collect(&:value)).to be == ["zsh"]
 	end
 	
+	it "completes the detected shell before other shell names" do
+		shell = ENV["SHELL"]
+		
+		begin
+			ENV["SHELL"] = "/bin/fish"
+			
+			result = Samovar::Internal::Command::Top.complete(["completion", "--shell"], index: 2)
+		ensure
+			ENV["SHELL"] = shell
+		end
+		
+		expect(result.collect(&:value)).to be == ["fish", "bash", "zsh"]
+	end
+	
 	it "completes install shell option values" do
 		result = Samovar::Internal::Command::Top.complete(["completion", "install", "--shell", "f"], index: 3)
 		

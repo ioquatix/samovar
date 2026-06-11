@@ -71,8 +71,10 @@ module Samovar
 		
 		# The default values for options.
 		# 
-		# @attribute [Hash]
-		attr :defaults
+		# @returns [Hash] The resolved default values.
+		def defaults
+			@defaults.transform_values(&:default)
+		end
 		
 		# Freeze this options collection.
 		# 
@@ -149,8 +151,8 @@ module Samovar
 				end
 			end
 			
-			if default = option.default
-				@defaults[option.key] = option.default
+			if option.default?
+				@defaults[option.key] = option
 			end
 		end
 		
@@ -161,7 +163,7 @@ module Samovar
 		# @parameter default [Hash | Nil] Default values to use.
 		# @returns [Hash] The parsed option values.
 		def parse(input, parent = nil, default = nil)
-			values = (default || @defaults).dup
+			values = (default || defaults).dup
 			
 			while option = @keyed[input.first]
 				# prefix = input.first

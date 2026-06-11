@@ -61,8 +61,21 @@ module Samovar
 		
 		# The default value if the option is not provided.
 		# 
-		# @attribute [Object]
-		attr :default
+		# @returns [Object | Nil] The resolved default value.
+		def default
+			if @default.respond_to?(:call)
+				@default.call
+			else
+				@default
+			end
+		end
+		
+		# Whether this option has a default value.
+		# 
+		# @returns [Boolean] True if the option has a default value.
+		def default?
+			!@default.nil?
+		end
 		
 		# A fixed value to use regardless of user input.
 		# 
@@ -163,8 +176,8 @@ module Samovar
 		# 
 		# @returns [Array] The usage array.
 		def to_a
-			if @default
-				[@flags, @description, "(default: #{@default})"]
+			if default?
+				[@flags, @description, "(default: #{default})"]
 			elsif @required
 				[@flags, @description, "(required)"]
 			else

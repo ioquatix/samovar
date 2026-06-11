@@ -129,7 +129,7 @@ module Samovar
 					if input.any?
 						input.shift
 					else
-						return provider_suggestions(option.completions, context, row: options, option: option)
+						return option_value_suggestions(option, context, row: options)
 					end
 				end
 			end
@@ -153,6 +153,22 @@ module Samovar
 				
 				Suggestion.new(value: name, description: command_class.description, type: :command)
 			end.compact
+			
+			Result.new(suggestions)
+		end
+		
+		def self.option_value_suggestions(option, context, row:)
+			suggestions = []
+			
+			if option.default?
+				suggestion = wrap_suggestion(option.default)
+				
+				suggestions << suggestion if suggestion.value.to_s.start_with?(context.current)
+			end
+			
+			(result = provider_suggestions(option.completions, context, row: row, option: option)).each do |suggestion|
+				suggestions << suggestion unless suggestions.any?{|existing| existing.value == suggestion.value}
+			end
 			
 			Result.new(suggestions)
 		end

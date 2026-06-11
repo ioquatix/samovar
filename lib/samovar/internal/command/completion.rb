@@ -51,14 +51,12 @@ module Samovar
 					self.description = "Generate shell completion adapter scripts."
 					
 					options do
-						option "--shell <name>", "The shell to generate completions for.", completions: ["bash", "zsh", "fish"]
+						option "--shell <name>", "The shell to generate completions for.", default: Completion.method(:default_shell), completions: ["bash", "zsh", "fish"]
 						option "--command <name>", "The command executable to complete.", required: true
 					end
 					
 					def call
-						shell = @options[:shell] || Completion.default_shell
-						
-						output.puts Samovar::Completion.script(shell: shell.to_sym, executable: @options[:command])
+						output.puts Samovar::Completion.script(shell: @options[:shell].to_sym, executable: @options[:command])
 					end
 				end
 				
@@ -67,13 +65,13 @@ module Samovar
 					self.description = "Install a shell completion adapter script."
 					
 					options do
-						option "--shell <name>", "The shell to install completions for.", completions: ["bash", "zsh", "fish"]
+						option "--shell <name>", "The shell to install completions for.", default: Completion.method(:default_shell), completions: ["bash", "zsh", "fish"]
 						option "--directory <path>", "The completion directory to install into."
 						option "--command <name>", "The command executable to complete.", required: true
 					end
 					
 					def call
-						shell = @options[:shell] || Completion.default_shell
+						shell = @options[:shell]
 						directory = @options[:directory] || Completion.default_directory(shell)
 						path = File.join(directory, Completion.file_name(shell, @options[:command]))
 						script = Samovar::Completion.script(shell: shell.to_sym, executable: @options[:command])
