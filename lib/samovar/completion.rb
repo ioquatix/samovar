@@ -189,11 +189,16 @@ module Samovar
 		end
 		
 		def self.function_name(executable)
-			"_#{executable.gsub(/[^a-zA-Z0-9_]/, "_")}_completion"
+			"_#{command_name(executable).gsub(/[^a-zA-Z0-9_]/, "_")}_completion"
+		end
+		
+		def self.command_name(executable)
+			File.basename(executable)
 		end
 		
 		def self.bash_script(executable)
 			function = function_name(executable)
+			command = command_name(executable)
 			
 			<<~SCRIPT
 				#{function}() {
@@ -206,27 +211,28 @@ module Samovar
 					done < <(SAMOVAR_COMPLETE="$index" #{executable} "${argv[@]}")
 				}
 
-				complete -F #{function} #{executable}
+				complete -F #{function} #{command}
 			SCRIPT
 		end
 		
 		def self.zsh_script(executable)
 			function = function_name(executable)
+			command = command_name(executable)
 			
 			<<~SCRIPT
-				#compdef #{executable}
+				#compdef #{command}
 
 				#{function}() {
 					local index=$((CURRENT - 2))
 					local -a argv
-					argv=("${words[@]:1}")
+					argv=("${words[2,-1]}")
 
 					local -a completions
 					while IFS=$'\\t' read -r value description type; do
 						completions+=("${value}:${description}")
 					done < <(SAMOVAR_COMPLETE="$index" #{executable} "${argv[@]}")
 
-					_describe '#{executable}' completions
+					_describe '#{command}' completions
 				}
 
 				#{function}
@@ -235,9 +241,10 @@ module Samovar
 		
 		def self.fish_script(executable)
 			function = function_name(executable)
+			command = command_name(executable)
 			
 			<<~SCRIPT
-				function #{function} --description 'Complete #{executable}'
+				function #{function} --description 'Complete #{command}'
 					set -l argv (commandline -opc)
 					set -e argv[1]
 					set -l index (math (count $argv) - 1)
@@ -247,7 +254,7 @@ module Samovar
 					end
 				end
 
-				complete -c #{executable} -f -a "(#{function})"
+				complete -c #{command} -f -a "(#{function})"
 			SCRIPT
 		end
 	end

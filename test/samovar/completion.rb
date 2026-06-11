@@ -151,4 +151,45 @@ describe Samovar::Completion do
 		expect(subject.script(shell: :zsh, executable: "samovar")).to be(:include?, "#compdef samovar")
 		expect(subject.script(shell: :fish, executable: "samovar")).to be(:include?, "complete -c samovar")
 	end
+	
+	it "uses zsh array indexing to remove the command word" do
+		script = subject.script(shell: :zsh, executable: "samovar")
+		
+		expect(script).to be(:include?, 'argv=("${words[2,-1]}")')
+	end
+	
+	it "passes application arguments from zsh completion" do
+		skip "zsh is not available" unless system("command -v zsh >/dev/null")
+		
+		path = "/tmp/samovar-completion-#{$$}"
+		
+		system({"TRACE" => path}, "zsh", "-fc", <<~SCRIPT)
+			samovar() {
+				print -r -- "$SAMOVAR_COMPLETE|$*" > "$TRACE"
+				print -r -- "completion\\tGenerate\\tcommand"
+			}
+			
+			_describe() { :; }
+			
+			words=(samovar completion --shell z)
+			CURRENT=4
+			
+			source <(ruby -Ilib bin/samovar completion --command samovar --shell zsh)
+		SCRIPT
+		
+		expect(File.read(path)).to be == "2|completion --shell z\n"
+	ensure
+		File.delete(path) if path && File.exist?(path)
+	end
+	
+	it "uses the basename when registering completion scripts" do
+		zsh = subject.script(shell: :zsh, executable: "./samovar")
+		bash = subject.script(shell: :bash, executable: "./samovar")
+		fish = subject.script(shell: :fish, executable: "./samovar")
+		
+		expect(zsh).to be(:include?, "#compdef samovar")
+		expect(zsh).to be(:include?, "_samovar_completion()")
+		expect(bash).to be(:include?, "complete -F _samovar_completion samovar")
+		expect(fish).to be(:include?, "complete -c samovar")
+	end
 end
