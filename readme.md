@@ -47,9 +47,9 @@ SAMOVAR_COMPLETE=1 command --for
 Applications can also generate shell adapter scripts:
 
 ``` shell
-samovar completions bash command
-samovar completions zsh command
-samovar completions fish command
+samovar completion bash command
+samovar completion zsh command
+samovar completion fish command
 ```
 
 ## Releases

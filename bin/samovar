@@ -4,6 +4,6 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
-require "samovar/command/completions"
+require_relative "../lib/samovar/internal/command/top"
 
-Samovar::CommandLine::Top.call
+Samovar::Internal::Command::Top.call
