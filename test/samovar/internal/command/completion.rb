@@ -18,7 +18,7 @@ describe Samovar::Internal::Command::Completion do
 	
 	it "generates a shell completion adapter script" do
 		output = StringIO.new
-		command = subject.new(["generate", "zsh", "my-command"], output: output)
+		command = subject.new(["generate", "--shell", "zsh", "my-command"], output: output)
 		
 		command.call
 		
@@ -28,12 +28,28 @@ describe Samovar::Internal::Command::Completion do
 	
 	it "generates a shell completion adapter script with --command" do
 		output = StringIO.new
-		command = subject.new(["--command", "my-command", "zsh"], output: output)
+		command = subject.new(["--shell", "zsh", "--command", "my-command"], output: output)
 		
 		command.call
 		
 		expect(output.string).to be(:include?, "#compdef my-command")
 		expect(output.string).to be(:include?, "SAMOVAR_COMPLETE")
+	end
+	
+	it "infers shell when generating" do
+		output = StringIO.new
+		shell = ENV["SHELL"]
+		
+		begin
+			ENV["SHELL"] = "/bin/fish"
+			
+			command = subject.new(["--command", "my-command"], output: output)
+			command.call
+		ensure
+			ENV["SHELL"] = shell
+		end
+		
+		expect(output.string).to be(:include?, "complete -c my-command")
 	end
 	
 	it "installs a shell completion adapter script to an explicit directory" do
@@ -73,13 +89,13 @@ describe Samovar::Internal::Command::Completion do
 	it "can be invoked through the top-level command" do
 		output = StringIO.new
 		
-		Samovar::Internal::Command::Top.new(["completion", "bash", "my-command"], output: output).call
+		Samovar::Internal::Command::Top.new(["completion", "--shell", "bash", "my-command"], output: output).call
 		
 		expect(output.string).to be(:include?, "complete -F _my_command_completion my-command")
 	end
 	
 	it "completes shell names" do
-		result = Samovar::Internal::Command::Top.complete(["completion", "z"], index: 1)
+		result = Samovar::Internal::Command::Top.complete(["completion", "--shell", "z"], index: 2)
 		
 		expect(result.collect(&:value)).to be == ["zsh"]
 	end

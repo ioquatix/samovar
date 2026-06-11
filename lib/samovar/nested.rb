@@ -117,6 +117,8 @@ module Samovar
 			if command = @commands[input.first]
 				input.shift
 				Completion.complete_command(command, input, context)
+			elsif @default
+				Completion.complete_command(@commands.fetch(@default), input, context)
 			else
 				Completion::Result.new(collected)
 			end
