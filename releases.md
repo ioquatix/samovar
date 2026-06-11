@@ -2,7 +2,7 @@
 
 ## v2.4.1
 
-  - Add support for options provided with an equals sign, e.g. `--config=path`. Both `--config path` and `--config=path` are accepted, and the token is split on the first `=` only, so the value may itself contain `=`.
+  - Add an explicit argument normalization helper for compatibility layers such as Thor migrations. Existing `--key=value` tokens can be rewritten into `--key value` pairs before parsing, and the transform is opt-in at the command boundary.
 
 ## v2.4.0
 

@@ -30,6 +30,10 @@ class Top < Samovar::Command
 	}
 end
 
+class TopWithTransform < Top
+	self.argument_transform = ->(input){Samovar::Arguments.transform(input, keys: ["--configuration"])}
+end
+
 describe Samovar::Command do
 	it "should invoke call" do
 		mock(Top) do |mock|
@@ -195,21 +199,26 @@ describe Samovar::Command do
 		end
 	end
 	
-	with "equals sign option syntax" do
-		let(:command_class) do
-			Class.new(Samovar::Command) do
-				self.description = "A command that accepts a configuration file."
-				
-				options do
-					option "--config <path>", "The configuration file path."
-					option "--[no]-color", "Enable or disable color output."
-				end
-			end
+	with "argument transform" do
+		it "parses legacy equals syntax through a compatibility transform" do
+			transform = ->(input){Samovar::Arguments.transform(input, keys: ["--configuration"])}
+			
+			top = Top.parse(["--configuration=path", "bottom", "project"], transform: transform)
+			
+			expect(top.options[:configuration]).to be == "path"
+			expect(top.command.project_name).to be == "project"
 		end
-		
-		it "raises for an unknown option in the equals sign form" do
+
+		it "supports per-command transform configuration" do
+			top = TopWithTransform.parse(["--configuration=path", "bottom", "project"])
+			
+			expect(top.options[:configuration]).to be == "path"
+			expect(top.command.project_name).to be == "project"
+		end
+
+		it "allows explicit transform override" do
 			expect do
-				command_class.parse(["--unknown=value"])
+				TopWithTransform.parse(["--configuration=path", "bottom", "project"], transform: nil)
 			end.to raise_exception(Samovar::InvalidInputError)
 		end
 	end
