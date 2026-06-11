@@ -101,78 +101,17 @@ module Samovar
 		end
 		
 		def self.complete_command(command_class, words, context)
-			complete_rows(command_class, command_class.table.merged, words.dup, context)
+			complete_rows(command_class.table.merged, words.dup, context)
 		end
 		
-		def self.complete_rows(command_class, table, input, context)
+		def self.complete_rows(table, input, context)
 			collected = []
 			
 			table.each do |row|
-				case row
-				when Options
-					result = consume_options(row, input, context)
-					return result if result
-					
-					if input.empty?
-						flags = option_suggestions(row, context.current)
-						
-						if context.current.start_with?("-") && flags.any?
-							return Result.new(flags)
-						elsif context.current.empty?
-							collected.concat(flags)
-						end
-					end
-				when Nested
-					if input.empty?
-						result = nested_suggestions(row, context)
-						
-						if result.empty? && context.current.start_with?("-") && row.default
-							return Result.new(collected) + complete_command(row.commands.fetch(row.default), [], context)
-						end
-						
-						return Result.new(collected) + result
-					elsif command_class = row.commands[input.first]
-						input.shift
-						return complete_command(command_class, input, context)
-					else
-						return Result.new(collected)
-					end
-				when One
-					if input.empty?
-						return Result.new(collected) + provider_suggestions(row.completions, context, row: row)
-					elsif row.pattern =~ input.first
-						input.shift
-					else
-						return Result.new(collected)
-					end
-				when Many
-					if row.stop
-						input.shift while input.any? && !(row.stop === input.first)
-						
-						next if row.stop === context.current
-					else
-						input.clear
-					end
-					
-					if input.empty?
-						return Result.new(collected) + provider_suggestions(row.completions, context, row: row)
-					end
-				when Split
-					if offset = input.index(row.marker)
-						input.shift(offset + 1)
-						return Result.new(collected) + provider_suggestions(row.completions, context, row: row)
-					elsif input.empty?
-						suggestions = []
-						
-						if row.marker.start_with?(context.current)
-							suggestions << Suggestion.new(value: row.marker, description: row.description, type: :split)
-						end
-						
-						return Result.new(collected + suggestions)
-					else
-						return Result.new(collected)
-					end
-				end
+				next unless row.respond_to?(:complete)
+				
+				result = row.complete(input, context, collected)
+				return result if result
 			end
 			
 			Result.new(collected)

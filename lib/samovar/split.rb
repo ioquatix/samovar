@@ -3,6 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2016-2025, by Samuel Williams.
 
+require_relative "completion"
+
 module Samovar
 	# Represents a split point in the command-line arguments.
 	# 
@@ -91,6 +93,29 @@ module Samovar
 			elsif @required
 				raise MissingValueError.new(parent, @key)
 			end
+		end
+		
+		# Complete the split marker or arguments after it.
+		# 
+		# @parameter input [Array(String)] Previously completed command-line arguments.
+		# @parameter context [Completion::Context] The completion context.
+		# @parameter collected [Array(Completion::Suggestion)] Suggestions collected so far.
+		# @returns [Completion::Result | Nil] A final completion result, or nil to continue.
+		def complete(input, context, collected)
+			if offset = input.index(@marker)
+				input.shift(offset + 1)
+				return Completion::Result.new(collected) + Completion.provider_suggestions(@completions, context, row: self)
+			end
+			
+			return Completion::Result.new(collected) unless input.empty?
+			
+			suggestions = []
+			
+			if @marker.start_with?(context.current)
+				suggestions << Completion::Suggestion.new(value: @marker, description: @description, type: :split)
+			end
+			
+			Completion::Result.new(collected + suggestions)
 		end
 	end
 end

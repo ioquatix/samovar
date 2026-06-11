@@ -4,6 +4,7 @@
 # Copyright, 2016-2025, by Samuel Williams.
 
 require_relative "option"
+require_relative "completion"
 
 module Samovar
 	# Represents a collection of command-line options.
@@ -178,7 +179,31 @@ module Samovar
 			end
 			
 			return values
-		end		# Generate a string representation for usage output.
+		end
+		
+		# Complete option flags or option values.
+		# 
+		# @parameter input [Array(String)] Previously completed command-line arguments.
+		# @parameter context [Completion::Context] The completion context.
+		# @parameter collected [Array(Completion::Suggestion)] Suggestions collected so far.
+		# @returns [Completion::Result | Nil] A final completion result, or nil to continue.
+		def complete(input, context, collected)
+			result = Completion.consume_options(self, input, context)
+			return result if result
+			
+			return unless input.empty?
+			
+			flags = Completion.option_suggestions(self, context.current)
+			
+			if context.current.start_with?("-") && flags.any?
+				Completion::Result.new(flags)
+			elsif context.current.empty?
+				collected.concat(flags)
+				nil
+			end
+		end
+		
+		# Generate a string representation for usage output.
 		# 
 		# @returns [String] The usage string.
 		def to_s

@@ -3,6 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2016-2026, by Samuel Williams.
 
+require_relative "completion"
+
 module Samovar
 	# Represents nested sub-commands in a command.
 	# 
@@ -92,6 +94,31 @@ module Samovar
 				@commands[@default].new(input, name: @default, parent: parent)
 			elsif @required
 				raise MissingValueError.new(parent, @key)
+			end
+		end
+		
+		# Complete nested command names or continue into a selected command.
+		# 
+		# @parameter input [Array(String)] Previously completed command-line arguments.
+		# @parameter context [Completion::Context] The completion context.
+		# @parameter collected [Array(Completion::Suggestion)] Suggestions collected so far.
+		# @returns [Completion::Result | Nil] A final completion result, or nil to continue.
+		def complete(input, context, collected)
+			if input.empty?
+				result = Completion.nested_suggestions(self, context)
+				
+				if result.empty? && context.current.start_with?("-") && @default
+					return Completion::Result.new(collected) + Completion.complete_command(@commands.fetch(@default), [], context)
+				end
+				
+				return Completion::Result.new(collected) + result
+			end
+			
+			if command = @commands[input.first]
+				input.shift
+				Completion.complete_command(command, input, context)
+			else
+				Completion::Result.new(collected)
 			end
 		end
 		

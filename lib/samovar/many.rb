@@ -3,6 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2016-2026, by Samuel Williams.
 
+require_relative "completion"
+
 module Samovar
 	# Represents multiple positional arguments in a command.
 	# 
@@ -92,6 +94,26 @@ module Samovar
 				return default
 			elsif @required
 				raise MissingValueError.new(parent, @key)
+			end
+		end
+		
+		# Complete this repeating positional argument.
+		# 
+		# @parameter input [Array(String)] Previously completed command-line arguments.
+		# @parameter context [Completion::Context] The completion context.
+		# @parameter collected [Array(Completion::Suggestion)] Suggestions collected so far.
+		# @returns [Completion::Result | Nil] A final completion result, or nil to continue.
+		def complete(input, context, collected)
+			if @stop
+				input.shift while input.any? && !(@stop === input.first)
+				
+				return if @stop === context.current
+			else
+				input.clear
+			end
+			
+			if input.empty?
+				Completion::Result.new(collected) + Completion.provider_suggestions(@completions, context, row: self)
 			end
 		end
 	end
