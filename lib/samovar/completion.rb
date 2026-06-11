@@ -243,7 +243,7 @@ module Samovar
 					local index=$((CURRENT - 2))
 					local command="${words[1]}"
 					local -a argv
-					argv=("${words[2,-1]}")
+					argv=("${(@)words[2,-1]}")
 
 					local -a completions
 					while IFS=$'\\t' read -r value description type; do

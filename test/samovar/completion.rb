@@ -165,7 +165,7 @@ describe Samovar::Completion do
 		script = subject.script(shell: :zsh, executable: "samovar")
 		
 		expect(script).to be(:include?, 'local command="${words[1]}"')
-		expect(script).to be(:include?, 'argv=("${words[2,-1]}")')
+		expect(script).to be(:include?, 'argv=("${(@)words[2,-1]}")')
 	end
 	
 	it "uses the completed command word as the executable" do
@@ -280,6 +280,32 @@ describe Samovar::Completion do
 			source (ruby -Ilib bin/samovar completion --command samovar --shell fish | psub)
 			set PATH #{root}
 			complete --do-complete "#{executable} completion --shell z" >/dev/null
+		SCRIPT
+		
+		expect(File.readlines(path)).to be(:include?, "2|completion --shell z\n")
+	end
+	
+	it "passes application arguments from fish completion using a relative executable path" do
+		skip "fish is not available" unless system("command -v fish >/dev/null")
+		
+		path = File.join(root, "fish-relative-trace")
+		directory = File.join(root, "bin")
+		executable = File.join(directory, "samovar")
+		
+		Dir.mkdir(directory)
+		File.write(executable, <<~SCRIPT)
+			#!/bin/sh
+			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" >> "$TRACE"
+			printf "completion\\tGenerate\\tcommand\\n"
+		SCRIPT
+		File.chmod(0o755, executable)
+		
+		system({"TRACE" => path}, "fish", "--no-config", "-c", <<~SCRIPT)
+			cd #{root}
+			complete -e -c samovar
+			source (ruby -I#{Dir.pwd}/lib #{Dir.pwd}/bin/samovar completion --command samovar --shell fish | psub)
+			set PATH #{root}
+			complete --do-complete "bin/samovar completion --shell z" >/dev/null
 		SCRIPT
 		
 		expect(File.readlines(path)).to be(:include?, "2|completion --shell z\n")
