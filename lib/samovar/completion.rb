@@ -247,9 +247,17 @@ module Samovar
 				function #{function} --description 'Complete #{command}'
 					set -l argv (commandline -opc)
 					set -e argv[1]
-					set -l index (math (count $argv) - 1)
+					set -l current (commandline -ct)
+					set -l index
+					
+					if test -n "$current"
+						set -a argv $current
+						set index (math (count $argv) - 1)
+					else
+						set index (count $argv)
+					end
 
-					SAMOVAR_COMPLETE="$index" #{executable} $argv | while read -l line
+					env SAMOVAR_COMPLETE="$index" #{executable} $argv | while read -l line
 						echo $line
 					end
 				end

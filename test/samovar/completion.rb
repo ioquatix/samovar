@@ -4,6 +4,7 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "samovar"
+require "sus/fixtures/temporary_directory_context"
 
 class CompletionLeaf < Samovar::Command
 	self.description = "Leaf command."
@@ -46,6 +47,8 @@ class CompletionTop < Samovar::Command
 end
 
 describe Samovar::Completion do
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
 	def values(result)
 		result.collect(&:value)
 	end
@@ -161,7 +164,7 @@ describe Samovar::Completion do
 	it "passes application arguments from zsh completion" do
 		skip "zsh is not available" unless system("command -v zsh >/dev/null")
 		
-		path = "/tmp/samovar-completion-#{$$}"
+		path = File.join(root, "trace")
 		
 		system({"TRACE" => path}, "zsh", "-fc", <<~SCRIPT)
 			samovar() {
@@ -178,8 +181,54 @@ describe Samovar::Completion do
 		SCRIPT
 		
 		expect(File.read(path)).to be == "2|completion --shell z\n"
-	ensure
-		File.delete(path) if path && File.exist?(path)
+	end
+	
+	it "passes application arguments from fish completion" do
+		skip "fish is not available" unless system("command -v fish >/dev/null")
+		
+		path = File.join(root, "fish-trace")
+		directory = File.join(root, "fish-command")
+		executable = File.join(directory, "samovar")
+		
+		Dir.mkdir(directory)
+		File.write(executable, <<~SCRIPT)
+			#!/bin/sh
+			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" >> "$TRACE"
+			printf "completion\\tGenerate\\tcommand\\n"
+		SCRIPT
+		File.chmod(0o755, executable)
+		
+		system({"TRACE" => path}, "fish", "--no-config", "-c", <<~SCRIPT)
+			complete -e -c samovar
+			source (ruby -Ilib bin/samovar completion --command #{executable} --shell fish | psub)
+			complete --do-complete "samovar completion --shell z" >/dev/null
+		SCRIPT
+		
+		expect(File.readlines(path)).to be(:include?, "2|completion --shell z\n")
+	end
+	
+	it "passes an empty token from fish completion" do
+		skip "fish is not available" unless system("command -v fish >/dev/null")
+		
+		path = File.join(root, "fish-empty-trace")
+		directory = File.join(root, "fish-empty-command")
+		executable = File.join(directory, "samovar")
+		
+		Dir.mkdir(directory)
+		File.write(executable, <<~SCRIPT)
+			#!/bin/sh
+			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" >> "$TRACE"
+			printf "completion\\tGenerate\\tcommand\\n"
+		SCRIPT
+		File.chmod(0o755, executable)
+		
+		system({"TRACE" => path}, "fish", "--no-config", "-c", <<~SCRIPT)
+			complete -e -c samovar
+			source (ruby -Ilib bin/samovar completion --command #{executable} --shell fish | psub)
+			complete --do-complete "samovar " >/dev/null
+		SCRIPT
+		
+		expect(File.readlines(path)).to be(:include?, "0|\n")
 	end
 	
 	it "uses the basename when registering completion scripts" do
