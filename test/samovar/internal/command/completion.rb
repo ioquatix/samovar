@@ -18,12 +18,18 @@ describe Samovar::Internal::Command::Completion do
 	
 	it "generates a shell completion adapter script" do
 		output = StringIO.new
-		command = subject.new(["generate", "--shell", "zsh", "my-command"], output: output)
+		command = subject.new(["generate", "--shell", "zsh", "--command", "my-command"], output: output)
 		
 		command.call
 		
 		expect(output.string).to be(:include?, "#compdef my-command")
 		expect(output.string).to be(:include?, "SAMOVAR_COMPLETE")
+	end
+	
+	it "requires the command name when generating" do
+		expect do
+			subject.new(["generate", "--shell", "zsh"])
+		end.to raise_exception(Samovar::MissingValueError)
 	end
 	
 	it "generates a shell completion adapter script with --command" do
@@ -89,7 +95,7 @@ describe Samovar::Internal::Command::Completion do
 	it "can be invoked through the top-level command" do
 		output = StringIO.new
 		
-		Samovar::Internal::Command::Top.new(["completion", "--shell", "bash", "my-command"], output: output).call
+		Samovar::Internal::Command::Top.new(["completion", "--shell", "bash", "--command", "my-command"], output: output).call
 		
 		expect(output.string).to be(:include?, "complete -F _my_command_completion my-command")
 	end

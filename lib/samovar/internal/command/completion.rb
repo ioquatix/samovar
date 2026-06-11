@@ -52,18 +52,13 @@ module Samovar
 					
 					options do
 						option "--shell <name>", "The shell to generate completions for.", completions: ["bash", "zsh", "fish"]
-						option "--command <name>", "The command executable to complete."
+						option "--command <name>", "The command executable to complete.", required: true
 					end
 					
-					one :executable, "The command executable to complete.", default: nil
-					
 					def call
-						executable = @options[:command] || @executable
-						raise MissingValueError.new(self, :command) unless executable
-						
 						shell = @options[:shell] || Completion.default_shell
 						
-						output.puts Samovar::Completion.script(shell: shell.to_sym, executable: executable)
+						output.puts Samovar::Completion.script(shell: shell.to_sym, executable: @options[:command])
 					end
 				end
 				
@@ -74,19 +69,14 @@ module Samovar
 					options do
 						option "--shell <name>", "The shell to install completions for.", completions: ["bash", "zsh", "fish"]
 						option "--directory <path>", "The completion directory to install into."
-						option "--command <name>", "The command executable to complete."
+						option "--command <name>", "The command executable to complete.", required: true
 					end
 					
-					one :executable, "The command executable to complete.", default: nil
-					
 					def call
-						executable = @options[:command] || @executable
-						raise MissingValueError.new(self, :command) unless executable
-						
 						shell = @options[:shell] || Completion.default_shell
 						directory = @options[:directory] || Completion.default_directory(shell)
-						path = File.join(directory, Completion.file_name(shell, executable))
-						script = Samovar::Completion.script(shell: shell.to_sym, executable: executable)
+						path = File.join(directory, Completion.file_name(shell, @options[:command]))
+						script = Samovar::Completion.script(shell: shell.to_sym, executable: @options[:command])
 						
 						FileUtils.mkdir_p(directory)
 						File.write(path, script)
