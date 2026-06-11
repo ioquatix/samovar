@@ -219,12 +219,13 @@ module Samovar
 			<<~SCRIPT
 				#{function}() {
 					local index=$((COMP_CWORD - 1))
+					local command="${COMP_WORDS[0]}"
 					local argv=("${COMP_WORDS[@]:1}")
 					COMPREPLY=()
 
 					while IFS=$'\\t' read -r value description type; do
 						COMPREPLY+=("$value")
-					done < <(SAMOVAR_COMPLETE="$index" #{executable} "${argv[@]}")
+					done < <(SAMOVAR_COMPLETE="$index" "$command" "${argv[@]}")
 				}
 
 				complete -F #{function} #{command}
@@ -240,13 +241,14 @@ module Samovar
 
 				#{function}() {
 					local index=$((CURRENT - 2))
+					local command="${words[1]}"
 					local -a argv
 					argv=("${words[2,-1]}")
 
 					local -a completions
 					while IFS=$'\\t' read -r value description type; do
 						completions+=("${value}:${description}")
-					done < <(SAMOVAR_COMPLETE="$index" #{executable} "${argv[@]}")
+					done < <(SAMOVAR_COMPLETE="$index" "$command" "${argv[@]}")
 
 					_describe '#{command}' completions
 				}
@@ -262,6 +264,7 @@ module Samovar
 			<<~SCRIPT
 				function #{function} --description 'Complete #{command}'
 					set -l argv (commandline -opc)
+					set -l command $argv[1]
 					set -e argv[1]
 					set -l current (commandline -ct)
 					set -l index
@@ -275,7 +278,7 @@ module Samovar
 
 					begin
 						set -lx SAMOVAR_COMPLETE "$index"
-						#{executable} $argv
+						$command $argv
 					end | while read -l line
 						echo $line
 					end

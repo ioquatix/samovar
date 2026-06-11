@@ -164,7 +164,20 @@ describe Samovar::Completion do
 	it "uses zsh array indexing to remove the command word" do
 		script = subject.script(shell: :zsh, executable: "samovar")
 		
+		expect(script).to be(:include?, 'local command="${words[1]}"')
 		expect(script).to be(:include?, 'argv=("${words[2,-1]}")')
+	end
+	
+	it "uses the completed command word as the executable" do
+		bash = subject.script(shell: :bash, executable: "samovar")
+		zsh = subject.script(shell: :zsh, executable: "samovar")
+		fish = subject.script(shell: :fish, executable: "samovar")
+		
+		expect(bash).to be(:include?, 'local command="${COMP_WORDS[0]}"')
+		expect(bash).to be(:include?, 'SAMOVAR_COMPLETE="$index" "$command" "${argv[@]}"')
+		expect(zsh).to be(:include?, 'SAMOVAR_COMPLETE="$index" "$command" "${argv[@]}"')
+		expect(fish).to be(:include?, "set -l command $argv[1]")
+		expect(fish).to be(:include?, "$command $argv")
 	end
 	
 	it "passes application arguments from bash completion" do
@@ -172,18 +185,20 @@ describe Samovar::Completion do
 		
 		path = File.join(root, "bash-trace")
 		adapter = File.join(root, "samovar.bash")
+		executable = File.join(root, "samovar")
 		
 		File.write(adapter, subject.script(shell: :bash, executable: "samovar"))
+		File.write(executable, <<~SCRIPT)
+			#!/bin/sh
+			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" > "$TRACE"
+			printf "completion\\tGenerate\\tcommand\\n"
+		SCRIPT
+		File.chmod(0o755, executable)
 		
 		system({"TRACE" => path, "ADAPTER" => adapter}, "bash", "-c", <<~SCRIPT)
-			samovar() {
-				printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" > "$TRACE"
-				printf "completion\\tGenerate\\tcommand\\n"
-			}
-			
 			source "$ADAPTER"
 			
-			COMP_WORDS=(samovar completion --shell z)
+			COMP_WORDS=(#{executable} completion --shell z)
 			COMP_CWORD=3
 			
 			_samovar_completion
@@ -197,18 +212,20 @@ describe Samovar::Completion do
 		
 		path = File.join(root, "bash-empty-trace")
 		adapter = File.join(root, "samovar-empty.bash")
+		executable = File.join(root, "samovar-empty")
 		
 		File.write(adapter, subject.script(shell: :bash, executable: "samovar"))
+		File.write(executable, <<~SCRIPT)
+			#!/bin/sh
+			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" > "$TRACE"
+			printf "completion\\tGenerate\\tcommand\\n"
+		SCRIPT
+		File.chmod(0o755, executable)
 		
 		system({"TRACE" => path, "ADAPTER" => adapter}, "bash", "-c", <<~SCRIPT)
-			samovar() {
-				printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" > "$TRACE"
-				printf "completion\\tGenerate\\tcommand\\n"
-			}
-			
 			source "$ADAPTER"
 			
-			COMP_WORDS=(samovar "")
+			COMP_WORDS=(#{executable} "")
 			COMP_CWORD=1
 			
 			_samovar_completion
@@ -221,16 +238,20 @@ describe Samovar::Completion do
 		skip "zsh is not available" unless system("command -v zsh >/dev/null")
 		
 		path = File.join(root, "trace")
+		executable = File.join(root, "samovar")
+		
+		File.write(executable, <<~SCRIPT)
+			#!/bin/sh
+			printf "%s|%s\\n" "$SAMOVAR_COMPLETE" "$*" > "$TRACE"
+			printf "completion\\tGenerate\\tcommand\\n"
+		SCRIPT
+		File.chmod(0o755, executable)
 		
 		system({"TRACE" => path}, "zsh", "-fc", <<~SCRIPT)
-			samovar() {
-				print -r -- "$SAMOVAR_COMPLETE|$*" > "$TRACE"
-				print -r -- "completion\\tGenerate\\tcommand"
-			}
 			
 			_describe() { :; }
 			
-			words=(samovar completion --shell z)
+			words=(#{executable} completion --shell z)
 			CURRENT=4
 			
 			source <(ruby -Ilib bin/samovar completion --command samovar --shell zsh)
@@ -256,9 +277,9 @@ describe Samovar::Completion do
 		
 		system({"TRACE" => path}, "fish", "--no-config", "-c", <<~SCRIPT)
 			complete -e -c samovar
-			source (ruby -Ilib bin/samovar completion --command #{executable} --shell fish | psub)
+			source (ruby -Ilib bin/samovar completion --command samovar --shell fish | psub)
 			set PATH #{root}
-			complete --do-complete "samovar completion --shell z" >/dev/null
+			complete --do-complete "#{executable} completion --shell z" >/dev/null
 		SCRIPT
 		
 		expect(File.readlines(path)).to be(:include?, "2|completion --shell z\n")
@@ -281,9 +302,9 @@ describe Samovar::Completion do
 		
 		system({"TRACE" => path}, "fish", "--no-config", "-c", <<~SCRIPT)
 			complete -e -c samovar
-			source (ruby -Ilib bin/samovar completion --command #{executable} --shell fish | psub)
+			source (ruby -Ilib bin/samovar completion --command samovar --shell fish | psub)
 			set PATH #{root}
-			complete --do-complete "samovar " >/dev/null
+			complete --do-complete "#{executable} " >/dev/null
 		SCRIPT
 		
 		expect(File.readlines(path)).to be(:include?, "0|\n")
