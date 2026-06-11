@@ -14,6 +14,7 @@ require_relative "split"
 require_relative "output"
 
 require_relative "error"
+require_relative "completion"
 
 module Samovar
 	# Represents a command in the command-line interface.
@@ -27,7 +28,12 @@ module Samovar
 		# @parameter input [Array(String)] The command-line arguments to parse.
 		# @parameter output [IO] The output stream for error messages.
 		# @returns [Object | Nil] The result of the command's call method, or nil if parsing/execution failed.
-		def self.call(input = ARGV, output: $stderr)
+		def self.call(input = ARGV, output: $stderr, completion_output: $stdout)
+			if (index = ENV["SAMOVAR_COMPLETE"]) && !index.empty?
+				Completion.print(self.complete(input, index: index), completion_output)
+				return true
+			end
+			
 			self.parse(input).call
 		rescue Error => error
 			error.command.print_usage(output: output) do |formatter|
@@ -47,6 +53,16 @@ module Samovar
 		# @raises [Error] If parsing fails.
 		def self.parse(input)
 			self.new(input)
+		end
+		
+		# Complete the command-line input without executing the command.
+		# 
+		# @parameter input [Array(String)] The command-line arguments to complete.
+		# @parameter index [Integer] The zero-based application argument cursor index.
+		# @parameter environment [Hash] The environment for completion callbacks.
+		# @returns [Completion::Result] The completion result.
+		def self.complete(input = ARGV, index:, environment: ENV)
+			Completion.complete(self, input, index: index, environment: environment)
 		end
 		
 		# Create a new command instance with the given arguments.

@@ -15,12 +15,14 @@ module Samovar
 		# @parameter stop [Regexp] A pattern that indicates the end of this argument list.
 		# @parameter default [Object] The default value if no arguments are provided.
 		# @parameter required [Boolean] Whether at least one argument is required.
-		def initialize(key, description = nil, stop: /^-/, default: nil, required: false)
+		# @parameter completions [Array | Proc | Nil] Completions for these arguments.
+		def initialize(key, description = nil, stop: /^-/, default: nil, required: false, completions: nil)
 			@key = key
 			@description = description
 			@stop = stop
 			@default = default
 			@required = required
+			@completions = completions
 		end
 		
 		# The name of the attribute to store the values in.
@@ -47,6 +49,11 @@ module Samovar
 		# 
 		# @attribute [Boolean]
 		attr :required
+		
+		# Completions for these arguments.
+		# 
+		# @attribute [Array | Proc | Nil]
+		attr :completions
 		
 		# Generate a string representation for usage output.
 		# 

@@ -15,12 +15,14 @@ module Samovar
 		# @parameter marker [String] The marker that indicates the split point.
 		# @parameter default [Object] The default value if no split is present.
 		# @parameter required [Boolean] Whether the split is required.
-		def initialize(key, description, marker: "--", default: nil, required: false)
+		# @parameter completions [Array | Proc | Nil] Completions for split arguments.
+		def initialize(key, description, marker: "--", default: nil, required: false, completions: nil)
 			@key = key
 			@description = description
 			@marker = marker
 			@default = default
 			@required = required
+			@completions = completions
 		end
 		
 		# The name of the attribute to store the values after the split.
@@ -47,6 +49,11 @@ module Samovar
 		# 
 		# @attribute [Boolean]
 		attr :required
+		
+		# Completions for split arguments.
+		# 
+		# @attribute [Array | Proc | Nil]
+		attr :completions
 		
 		# Generate a string representation for usage output.
 		# 

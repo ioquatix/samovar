@@ -10,6 +10,8 @@ module Samovar
 	# 
 	# Options provide a DSL for defining multiple option flags in a single block.
 	class Options
+		include Enumerable
+		
 		# Parse and create an options collection from a block.
 		# 
 		# @parameter arguments [Array] The arguments for the options collection.
@@ -91,6 +93,21 @@ module Samovar
 		# @yields {|option| ...} Each option in the collection.
 		def each(&block)
 			@ordered.each(&block)
+		end
+		
+		# Find the option that matches the given flag token.
+		# 
+		# @parameter token [String] The flag token to match.
+		# @returns [Option | Nil] The matching option.
+		def option_for(token)
+			@keyed[token]
+		end
+		
+		# The possible flag prefixes for completion.
+		# 
+		# @returns [Array(String)] The option flag prefixes and alternatives.
+		def completions
+			@ordered.flat_map{|option| option.flags.completions}
 		end
 		
 		# Check if this options collection is empty.

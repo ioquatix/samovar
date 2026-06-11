@@ -15,12 +15,14 @@ module Samovar
 		# @parameter pattern [Regexp] A pattern to match valid values.
 		# @parameter default [Object] The default value if no argument is provided.
 		# @parameter required [Boolean] Whether the argument is required.
-		def initialize(key, description, pattern: //, default: nil, required: false)
+		# @parameter completions [Array | Proc | Nil] Completions for this argument.
+		def initialize(key, description, pattern: //, default: nil, required: false, completions: nil)
 			@key = key
 			@description = description
 			@pattern = pattern
 			@default = default
 			@required = required
+			@completions = completions
 		end
 		
 		# The name of the attribute to store the value in.
@@ -47,6 +49,11 @@ module Samovar
 		# 
 		# @attribute [Boolean]
 		attr :required
+		
+		# Completions for this argument.
+		# 
+		# @attribute [Array | Proc | Nil]
+		attr :completions
 		
 		# Generate a string representation for usage output.
 		# 
