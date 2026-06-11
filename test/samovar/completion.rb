@@ -251,6 +251,7 @@ describe Samovar::Completion do
 		system({"TRACE" => path}, "fish", "--no-config", "-c", <<~SCRIPT)
 			complete -e -c samovar
 			source (ruby -Ilib bin/samovar completion --command #{executable} --shell fish | psub)
+			set PATH #{root}
 			complete --do-complete "samovar completion --shell z" >/dev/null
 		SCRIPT
 		
@@ -275,6 +276,7 @@ describe Samovar::Completion do
 		system({"TRACE" => path}, "fish", "--no-config", "-c", <<~SCRIPT)
 			complete -e -c samovar
 			source (ruby -Ilib bin/samovar completion --command #{executable} --shell fish | psub)
+			set PATH #{root}
 			complete --do-complete "samovar " >/dev/null
 		SCRIPT
 		

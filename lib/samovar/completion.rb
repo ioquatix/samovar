@@ -257,7 +257,10 @@ module Samovar
 						set index (count $argv)
 					end
 
-					env SAMOVAR_COMPLETE="$index" #{executable} $argv | while read -l line
+					begin
+						set -lx SAMOVAR_COMPLETE "$index"
+						#{executable} $argv
+					end | while read -l line
 						echo $line
 					end
 				end
