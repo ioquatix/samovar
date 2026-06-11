@@ -107,7 +107,7 @@ module Samovar
 			if input.empty?
 				result = Completion.nested_suggestions(self, context)
 				
-				if result.empty? && context.current.start_with?("-") && @default
+				if result.empty? && @default
 					return Completion::Result.new(collected) + Completion.complete_command(@commands.fetch(@default), [], context)
 				end
 				

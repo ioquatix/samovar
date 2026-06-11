@@ -50,6 +50,7 @@ Applications can also generate shell adapter scripts:
 samovar completion bash command
 samovar completion zsh command
 samovar completion fish command
+samovar completion install --command command
 ```
 
 ## Releases
