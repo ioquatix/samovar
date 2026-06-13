@@ -160,5 +160,35 @@ describe Samovar::Options do
 			expect(values[:thing].value).to be == "test"
 		end
 	end
+	
+	with "argument transform" do
+		let(:options) do
+			subject.parse do
+				option "-c/--config <path>", "The configuration file path."
+				option "--verbose", "Enable verbose output."
+				option "--[no]-debug", "Enable or disable debugging."
+			end
+		end
+		
+		it "rewrites selected equals syntax into argv pairs" do
+			values = options.parse(Samovar::Arguments.transform(["--config=app.yml"], keys: ["--config"]), {})
+			expect(values[:config]).to be == "app.yml"
+		end
+		
+		it "only transforms the selected keys" do
+			arguments = Samovar::Arguments.transform(["--config=app.yml", "--verbose=anything"], keys: ["--config"])
+			expect(arguments).to be == ["--config", "app.yml", "--verbose=anything"]
+		end
+		
+		it "splits on the first equals sign only" do
+			arguments = Samovar::Arguments.transform(["--config=a=b=c"], keys: ["--config"])
+			expect(arguments).to be == ["--config", "a=b=c"]
+		end
+		
+		it "preserves empty values for explicit transforms" do
+			arguments = Samovar::Arguments.transform(["--config="], keys: ["--config"])
+			expect(arguments).to be == ["--config", ""]
+		end
+	end
 end
 

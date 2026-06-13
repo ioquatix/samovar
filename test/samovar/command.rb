@@ -30,6 +30,10 @@ class Top < Samovar::Command
 	}
 end
 
+class TopWithTransform < Top
+	self.argument_transform = ->(input){Samovar::Arguments.transform(input, keys: ["--configuration"])}
+end
+
 describe Samovar::Command do
 	it "should invoke call" do
 		mock(Top) do |mock|
@@ -192,6 +196,30 @@ describe Samovar::Command do
 			# Should return the name (with trailing space from empty usage)
 			usage = command_class.command_line("mycommand")
 			expect(usage).to be(:start_with?, "mycommand")
+		end
+	end
+	
+	with "argument transform" do
+		it "parses legacy equals syntax through a compatibility transform" do
+			transform = ->(input){Samovar::Arguments.transform(input, keys: ["--configuration"])}
+			
+			top = Top.parse(["--configuration=path", "bottom", "project"], transform: transform)
+			
+			expect(top.options[:configuration]).to be == "path"
+			expect(top.command.project_name).to be == "project"
+		end
+
+		it "supports per-command transform configuration" do
+			top = TopWithTransform.parse(["--configuration=path", "bottom", "project"])
+			
+			expect(top.options[:configuration]).to be == "path"
+			expect(top.command.project_name).to be == "project"
+		end
+
+		it "allows explicit transform override" do
+			expect do
+				TopWithTransform.parse(["--configuration=path", "bottom", "project"], transform: nil)
+			end.to raise_exception(Samovar::InvalidInputError)
 		end
 	end
 end

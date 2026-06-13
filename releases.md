@@ -4,6 +4,8 @@
 
   - Drop dependency on `mapping` gem.
 
+  - Add an explicit argument normalization helper for compatibility layers such as Thor migrations. Existing `--key=value` tokens can be rewritten into `--key value` pairs before parsing, and the transform is opt-in at the command boundary.
+
 ## v2.4.0
 
   - Fix option parsing and validation: required options are now detected correctly and raise `Samovar::MissingValueError` when missing.

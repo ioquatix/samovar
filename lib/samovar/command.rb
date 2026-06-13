@@ -25,10 +25,11 @@ module Samovar
 		# This is the high-level entry point for CLI applications. It handles errors gracefully by printing usage and returning nil.
 		# 
 		# @parameter input [Array(String)] The command-line arguments to parse.
+		# @parameter transform [#call | Nil] An optional compatibility transform applied before parsing.
 		# @parameter output [IO] The output stream for error messages.
 		# @returns [Object | Nil] The result of the command's call method, or nil if parsing/execution failed.
-		def self.call(input = ARGV, output: $stderr)
-			self.parse(input).call
+		def self.call(input = ARGV, output: $stderr, transform: self.argument_transform)
+			self.parse(input, transform: transform).call
 		rescue Error => error
 			error.command.print_usage(output: output) do |formatter|
 				formatter.map(error)
@@ -43,10 +44,13 @@ module Samovar
 		# For CLI applications, use {call} instead which handles errors gracefully.
 		# 
 		# @parameter input [Array(String)] The command-line arguments to parse.
+		# @parameter transform [#call | Nil] An optional compatibility transform applied before parsing.
 		# @returns [Command] The parsed command instance.
 		# @raises [Error] If parsing fails.
-		def self.parse(input)
-			self.new(input)
+		def self.parse(input, transform: self.argument_transform)
+			self.new(nil).tap do |command|
+				command.parse(input, transform: transform)
+			end
 		end
 		
 		# Create a new command instance with the given arguments.
@@ -56,8 +60,10 @@ module Samovar
 		# @parameter input [Array(String)] The command-line arguments to parse.
 		# @parameter options [Hash] Additional options to pass to the command.
 		# @returns [Command] The command instance.
-		def self.[](*input, **options)
-			self.new(input, **options)
+		def self.[](*input, transform: self.argument_transform, **options)
+			self.new(nil, **options).tap do |command|
+				command.parse(input, transform: transform)
+			end
 		end
 		
 		class << self
@@ -65,6 +71,27 @@ module Samovar
 			# 
 			# @attribute [String]
 			attr_accessor :description
+
+			# The default argument transform for this command.
+			#
+			# Inherited from superclasses unless explicitly overridden.
+			#
+			# @returns [#call | Nil]
+			def argument_transform
+				if instance_variable_defined?(:@argument_transform)
+					@argument_transform
+				elsif superclass.respond_to?(:argument_transform)
+					superclass.argument_transform
+				end
+			end
+
+			# Set the default argument transform for this command.
+			#
+			# @parameter transform [#call | Nil]
+			# @returns [#call | Nil]
+			def argument_transform=(transform)
+				@argument_transform = transform
+			end
 		end
 		
 		# The table of rows for parsing command-line arguments.
@@ -203,15 +230,20 @@ module Samovar
 		# 
 		# @parameter input [Array(String)] The additional command-line arguments to parse.
 		# @returns [Command] The duplicated command instance.
-		def [](*input)
+		def [](*input, transform: self.class.argument_transform)
+			input = transform.call(input) if transform
+			
 			self.dup.tap{|command| command.parse(input)}
 		end
 		
 		# Parse the command-line input.
 		# 
 		# @parameter input [Array(String)] The command-line arguments to parse.
+		# @parameter transform [#call | Nil] An optional compatibility transform applied before parsing.
 		# @returns [Command] The command instance.
-		def parse(input)
+		def parse(input, transform: self.class.argument_transform)
+			input = transform.call(input) if transform
+			
 			self.class.table.merged.parse(input, self)
 			
 			if input.empty?

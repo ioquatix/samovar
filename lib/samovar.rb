@@ -4,4 +4,5 @@
 # Copyright, 2016-2025, by Samuel Williams.
 
 require_relative "samovar/version"
+require_relative "samovar/arguments"
 require_relative "samovar/command"
