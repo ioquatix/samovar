@@ -3,6 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2016-2026, by Samuel Williams.
 
+require_relative "completion"
+
 module Samovar
 	# Represents multiple positional arguments in a command.
 	# 
@@ -15,12 +17,14 @@ module Samovar
 		# @parameter stop [Regexp] A pattern that indicates the end of this argument list.
 		# @parameter default [Object] The default value if no arguments are provided.
 		# @parameter required [Boolean] Whether at least one argument is required.
-		def initialize(key, description = nil, stop: /^-/, default: nil, required: false)
+		# @parameter completions [Array | Proc | Nil] Completions for these arguments.
+		def initialize(key, description = nil, stop: /^-/, default: nil, required: false, completions: nil)
 			@key = key
 			@description = description
 			@stop = stop
 			@default = default
 			@required = required
+			@completions = completions
 		end
 		
 		# The name of the attribute to store the values in.
@@ -47,6 +51,11 @@ module Samovar
 		# 
 		# @attribute [Boolean]
 		attr :required
+		
+		# Completions for these arguments.
+		# 
+		# @attribute [Array | Proc | Nil]
+		attr :completions
 		
 		# Generate a string representation for usage output.
 		# 
@@ -85,6 +94,26 @@ module Samovar
 				return default
 			elsif @required
 				raise MissingValueError.new(parent, @key)
+			end
+		end
+		
+		# Complete this repeating positional argument.
+		# 
+		# @parameter input [Array(String)] Previously completed command-line arguments.
+		# @parameter context [Completion::Context] The completion context.
+		# @parameter collected [Array(Completion::Suggestion)] Suggestions collected so far.
+		# @returns [Completion::Result | Nil] A final completion result, or nil to continue.
+		def complete(input, context, collected)
+			if @stop
+				input.shift while input.any? && !(@stop === input.first)
+				
+				return if @stop === context.current
+			else
+				input.clear
+			end
+			
+			if input.empty?
+				Completion::Result.new(collected) + Completion.provider_suggestions(@completions, context, row: self)
 			end
 		end
 	end

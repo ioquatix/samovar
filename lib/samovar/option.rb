@@ -20,8 +20,9 @@ module Samovar
 		# @parameter value [Object | Nil] A fixed value to use regardless of user input.
 		# @parameter type [Class | Proc | Nil] The type to coerce the value to.
 		# @parameter required [Boolean] Whether the option is required.
+		# @parameter completions [Array | Proc | Nil] Completions for option values.
 		# @yields {|value| ...} An optional block to transform the parsed value.
-		def initialize(flags, description, key: nil, default: nil, value: nil, type: nil, required: false, &block)
+		def initialize(flags, description, key: nil, default: nil, value: nil, type: nil, required: false, completions: nil, &block)
 			@flags = Flags.new(flags)
 			@description = description
 			
@@ -39,6 +40,7 @@ module Samovar
 			
 			@type = type
 			@required = required
+			@completions = completions
 			@block = block
 		end
 		
@@ -59,8 +61,21 @@ module Samovar
 		
 		# The default value if the option is not provided.
 		# 
-		# @attribute [Object]
-		attr :default
+		# @returns [Object | Nil] The resolved default value.
+		def default
+			if @default.respond_to?(:call)
+				@default.call
+			else
+				@default
+			end
+		end
+		
+		# Whether this option has a default value.
+		# 
+		# @returns [Boolean] True if the option has a default value.
+		def default?
+			!@default.nil?
+		end
 		
 		# A fixed value to use regardless of user input.
 		# 
@@ -77,10 +92,30 @@ module Samovar
 		# @attribute [Boolean]
 		attr :required
 		
+		# Completions for option values.
+		# 
+		# @attribute [Array | Proc | Nil]
+		attr :completions
+		
 		# An optional block to transform the parsed value.
 		# 
 		# @attribute [Proc | Nil]
 		attr :block
+		
+		# Find the flag that matches the given token.
+		# 
+		# @parameter token [String] The token to match.
+		# @returns [Flag | Nil] The matching flag.
+		def flag_for(token)
+			@flags.flag_for(token)
+		end
+		
+		# Whether this option consumes a value after the flag.
+		# 
+		# @returns [Boolean] True if any flag for this option consumes a value.
+		def value?
+			@flags.any?{|flag| !flag.boolean?}
+		end
 		
 		# Coerce the result to the specified type.
 		# 
@@ -141,8 +176,8 @@ module Samovar
 		# 
 		# @returns [Array] The usage array.
 		def to_a
-			if @default
-				[@flags, @description, "(default: #{@default})"]
+			if default?
+				[@flags, @description, "(default: #{default})"]
 			elsif @required
 				[@flags, @description, "(required)"]
 			else

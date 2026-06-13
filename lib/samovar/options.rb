@@ -4,12 +4,15 @@
 # Copyright, 2016-2025, by Samuel Williams.
 
 require_relative "option"
+require_relative "completion"
 
 module Samovar
 	# Represents a collection of command-line options.
 	# 
 	# Options provide a DSL for defining multiple option flags in a single block.
 	class Options
+		include Enumerable
+		
 		# Parse and create an options collection from a block.
 		# 
 		# @parameter arguments [Array] The arguments for the options collection.
@@ -68,8 +71,10 @@ module Samovar
 		
 		# The default values for options.
 		# 
-		# @attribute [Hash]
-		attr :defaults
+		# @returns [Hash] The resolved default values.
+		def defaults
+			@defaults.transform_values(&:default)
+		end
 		
 		# Freeze this options collection.
 		# 
@@ -91,6 +96,21 @@ module Samovar
 		# @yields {|option| ...} Each option in the collection.
 		def each(&block)
 			@ordered.each(&block)
+		end
+		
+		# Find the option that matches the given flag token.
+		# 
+		# @parameter token [String] The flag token to match.
+		# @returns [Option | Nil] The matching option.
+		def option_for(token)
+			@keyed[token]
+		end
+		
+		# The possible flag prefixes for completion.
+		# 
+		# @returns [Array(String)] The option flag prefixes and alternatives.
+		def completions
+			@ordered.flat_map{|option| option.flags.completions}
 		end
 		
 		# Check if this options collection is empty.
@@ -131,8 +151,8 @@ module Samovar
 				end
 			end
 			
-			if default = option.default
-				@defaults[option.key] = option.default
+			if option.default?
+				@defaults[option.key] = option
 			end
 		end
 		
@@ -143,7 +163,7 @@ module Samovar
 		# @parameter default [Hash | Nil] Default values to use.
 		# @returns [Hash] The parsed option values.
 		def parse(input, parent = nil, default = nil)
-			values = (default || @defaults).dup
+			values = (default || defaults).dup
 			
 			while option = @keyed[input.first]
 				# prefix = input.first
@@ -161,7 +181,31 @@ module Samovar
 			end
 			
 			return values
-		end		# Generate a string representation for usage output.
+		end
+		
+		# Complete option flags or option values.
+		# 
+		# @parameter input [Array(String)] Previously completed command-line arguments.
+		# @parameter context [Completion::Context] The completion context.
+		# @parameter collected [Array(Completion::Suggestion)] Suggestions collected so far.
+		# @returns [Completion::Result | Nil] A final completion result, or nil to continue.
+		def complete(input, context, collected)
+			result = Completion.consume_options(self, input, context)
+			return result if result
+			
+			return unless input.empty?
+			
+			flags = Completion.option_suggestions(self, context.current)
+			
+			if context.current.start_with?("-") && flags.any?
+				Completion::Result.new(flags)
+			elsif context.current.empty?
+				collected.concat(flags)
+				nil
+			end
+		end
+		
+		# Generate a string representation for usage output.
 		# 
 		# @returns [String] The usage string.
 		def to_s

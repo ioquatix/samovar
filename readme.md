@@ -18,6 +18,41 @@ Please see the [project documentation](https://ioquatix.github.io/samovar/) for 
 
   - [Getting Started](https://ioquatix.github.io/samovar/guides/getting-started/index) - This guide explains how to use `samovar` to build command-line tools and applications.
 
+### Shell Auto-completion
+
+Samovar can complete command lines using the same command grammar used for parsing. Static completions are generated automatically for options, option aliases, boolean negation flags, and nested command names.
+
+You can provide value completions for options and positional arguments using `completions:`:
+
+``` ruby
+class Command < Samovar::Command
+	def self.path_completions(context)
+		Dir.glob("#{context.current}*")
+	end
+	
+	options do
+		option "--format <name>", "Output format.", completions: ["json", "text", "yaml"]
+	end
+	
+	one :path, "Path to process.", completions: method(:path_completions)
+end
+```
+
+Completion mode is enabled by setting `SAMOVAR_COMPLETE` to the zero-based cursor index in the application arguments:
+
+``` shell
+SAMOVAR_COMPLETE=1 command --for
+```
+
+Applications can also generate shell adapter scripts:
+
+``` shell
+samovar completion --command command
+samovar completion --command command --shell zsh
+samovar completion install --command command
+samovar completion install --command command --shell zsh
+```
+
 ## Releases
 
 Please see the [project releases](https://ioquatix.github.io/samovar/releases/index) for all releases.
@@ -105,12 +140,6 @@ command list -- --help
 ```
 
 In this case, do we show help? Some effort is required to disambiguate this. Initially, it makes sense to keep things as simple as possible. But, it might make sense for some options to be declared in a global scope, which are extracted before parsing begins. I'm not sure if this is really a good idea. It might just be better to give good error output in this case (you specified an option but it was in the wrong place).
-
-### Shell Auto-completion
-
-Because of the structure of the Samovar command parser, it should be possible to generate a list of all possible tokens at each point. Therefore, semantically correct tab completion should be possible.
-
-As a secondary to this, it would be nice if `Samovar::One` and `Samovar::Many` could take a list of potential tokens so that auto-completion could give meaningful suggestions, and possibly improved validation.
 
 ### Short/Long Help
 
