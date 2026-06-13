@@ -144,15 +144,15 @@ module Samovar
 		# @returns [Hash] The parsed option values.
 		def parse(input, parent = nil, default = nil)
 			values = (default || @defaults).dup
-			
-			while option = @keyed[input.first]
+
+			while option = @keyed[input.first] || @keyed[input.first&.split("=")&.first]
 				# prefix = input.first
 				result = option.parse(input)
 				if result != nil
 					values[option.key] = result
 				end
 			end
-			
+
 			# Validate required options
 			@ordered.each do |option|
 				if option.required && !values.key?(option.key)
@@ -161,7 +161,9 @@ module Samovar
 			end
 			
 			return values
-		end		# Generate a string representation for usage output.
+		end
+
+		# Generate a string representation for usage output.
 		# 
 		# @returns [String] The usage string.
 		def to_s
